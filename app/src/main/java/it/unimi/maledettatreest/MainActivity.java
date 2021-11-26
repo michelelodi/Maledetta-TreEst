@@ -13,13 +13,15 @@ import it.unimi.maledettatreest.controller.CommunicationController;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String APP_PREFS = "maledetta_treest_prefs";
-    private final String PREF_VERSION_CODE_KEY = "version";
+    public static final String TAG_BASE = "MALEDETTATREEST_";
+
+    private final String APP_PREFS = TAG_BASE + "prefs";
     private final int DOESNT_EXIST = -1;
-    private final String CURRENT_USER = "current_user";
-    private final String TAG = "MALEDETTATREEST_MainActivity";
-    private final String SETUP = "Setting up application";
-    private final String SETUP_SUCCESSFULL = "Successfully set up";
+    private final String PREF_VERSION_CODE_KEY = "version";
+    private final String SID_PREF_KEY = "sid";
+    private final String TAG = TAG_BASE + "MainActivity";
+    private final String UID_PREF_KEY = "uid";
+    private final String UNEXPECTED_ERROR_MESSAGE = "Something went wrong. Please RETRY to setup the application or EXIT";
 
     private int currentVersionCode;
     private CommunicationController cc;
@@ -30,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         firstRunSetUp();
-        Log.d(TAG,getSharedPreferences(APP_PREFS,0).getString(CURRENT_USER,"Something went wrong"));
+        Log.d(TAG,getSharedPreferences(APP_PREFS,0).getString(SID_PREF_KEY,UNEXPECTED_ERROR_MESSAGE));
     }
 
     private void firstRunSetUp() {
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                                 .getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
         cc = CommunicationController.getInstance(this);
         if (savedVersionCode == DOESNT_EXIST) {
-            Log.d(TAG,SETUP);
+            Log.d(TAG, "Setting up application");
             cc.register(this::registrationResponse,
                     this::registrationError);
             }
@@ -47,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 .edit()
                 .putInt(PREF_VERSION_CODE_KEY, currentVersionCode)
                 .apply();
-
     }
 
     private void registrationError(VolleyError error) {
@@ -56,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void registrationResponse(JSONObject response) {
+        Log.d(TAG,"Handling Register Response");
         try {
             getSharedPreferences(APP_PREFS,0)
                     .edit()
-                    .putString(CURRENT_USER, response.get("sid").toString())
+                    .putString(SID_PREF_KEY, response.get("sid").toString())
                     .apply();
-            Log.d(TAG,SETUP_SUCCESSFULL);
+            Log.d(TAG, "Successfully set up");
             /*cc.getProfile(response.get("sid").toString(), this::getProfileResponse,
                     error -> cc.handleVolleyError(error,this,TAG));*/
         } catch (JSONException e) {

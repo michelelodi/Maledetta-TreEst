@@ -18,9 +18,11 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
+import it.unimi.maledettatreest.MainActivity;
+
 public class CommunicationController {
     private final String URL_BASE = "https://ewserver.di.unimi.it/mobicomp/treest/";
-    private final String TAG = "MALEDETTATREEST_CommunicationController";
+    private final String TAG = MainActivity.TAG_BASE + "CommunicationController";
 
     private static CommunicationController instance;
     private final RequestQueue requestQueue;
@@ -35,6 +37,7 @@ public class CommunicationController {
     }
 
     public void handleVolleyError(VolleyError error, Context context, String tag) {
+        Log.d(TAG,"Handling Volley Error");
         String message = null;
         if (error instanceof NetworkError) {
             message = "Cannot connect to Internet...Please check your connection!";
@@ -58,6 +61,7 @@ public class CommunicationController {
 
     public void register(Response.Listener<JSONObject> responseListener,
                          Response.ErrorListener errorListener) {
+        Log.d(TAG, "Handling Register Request");
         final String url = URL_BASE + "register.php";
         requestQueue.add(new JsonObjectRequest(Request.Method.GET,
                                                 url,
