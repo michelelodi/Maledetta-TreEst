@@ -3,6 +3,7 @@ package it.unimi.maledettatreest.controller;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.NetworkError;
@@ -38,11 +39,13 @@ public class CommunicationController {
         return instance;
     }
 
-    public void getProfile(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) throws JSONException {
+    public void getProfile(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         Log.d(TAG,"Handling GetProfile Request");
 
-        final String url = URL_BASE + "getProfile.php";
-        requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+        String url = URL_BASE + "getProfile.php";
+        try {
+            requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+        } catch (JSONException e) { e.printStackTrace(); }
     }
 
     public void handleVolleyError(VolleyError e, Context c, String t) {
@@ -71,10 +74,24 @@ public class CommunicationController {
                     .show();
     }
 
-    public void register(Response.Listener<JSONObject> rL,
-                         Response.ErrorListener eL) {
+    public void register(Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         Log.d(TAG, "Handling Register Request");
-        final String url = URL_BASE + "register.php";
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, url, new JSONObject(), rL, eL));
+        String url = URL_BASE + "register.php";
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, url, null, rL, eL));
+    }
+
+    public void setProfile(String sid, @Nullable String name, @Nullable String picture, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
+        Log.d(TAG,"Handling SetProfile Request");
+        String url = URL_BASE + "setProfile.php";
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put(User.SID, sid);
+            if (name != null || picture != null) {
+                if (name != null) body.put(User.NAME, name);
+                if (picture != null) body.put(User.PICTURE, picture);
+            }
+        } catch (JSONException e) {e.printStackTrace();}
+        requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, body, rL, eL));
     }
 }

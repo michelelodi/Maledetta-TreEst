@@ -41,6 +41,9 @@ dependencies {
     //volley
     implementation 'com.android.volley:volley:1.2.1'
 
+    //apache commons codec
+    implementation 'commons-codec:commons-codec:1.15'
+
     //navigation
     def nav_version = "2.3.5"
 
