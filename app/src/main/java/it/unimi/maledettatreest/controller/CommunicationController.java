@@ -16,9 +16,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.unimi.maledettatreest.MainActivity;
+import it.unimi.maledettatreest.model.User;
 
 public class CommunicationController {
     private final String URL_BASE = "https://ewserver.di.unimi.it/mobicomp/treest/";
@@ -27,46 +29,52 @@ public class CommunicationController {
     private static CommunicationController instance;
     private final RequestQueue requestQueue;
 
-    private CommunicationController(Context context) {
-        this.requestQueue = Volley.newRequestQueue(context);
+    private CommunicationController(Context c) {
+        this.requestQueue = Volley.newRequestQueue(c);
     }
 
-    public static synchronized CommunicationController getInstance(Context context) {
-        if(instance == null) instance = new CommunicationController(context);
+    public static synchronized CommunicationController getInstance(Context c) {
+        if(instance == null) instance = new CommunicationController(c);
         return instance;
     }
 
-    public void handleVolleyError(VolleyError error, Context context, String tag) {
+    public void getProfile(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) throws JSONException {
+        Log.d(TAG,"Handling GetProfile Request");
+
+        final String url = URL_BASE + "getProfile.php";
+        requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+    }
+
+    public void handleVolleyError(VolleyError e, Context c, String t) {
         Log.d(TAG,"Handling Volley Error");
+
         String message = null;
-        if (error instanceof NetworkError) {
+
+        if (e instanceof NetworkError) {
             message = "Cannot connect to Internet...Please check your connection!";
-        } else if (error instanceof ServerError) {
+        } else if (e instanceof ServerError) {
             message = "The server could not be found. Please try again after some time!!";
-        } else if (error instanceof ParseError) {
+        } else if (e instanceof ParseError) {
             message = "Parsing error! Please try again after some time!!";
-        } else if (error instanceof TimeoutError) {
+        } else if (e instanceof TimeoutError) {
             message = "Connection TimeOut! Please check your internet connection.";
         }
-        Log.e(tag, error.toString());
-        if(message != null){
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage(message)
+
+        Log.e(t, e.toString());
+
+        if(message != null)
+            new AlertDialog.Builder(c)
+                    .setMessage(message)
                     .setTitle("ERROR")
                     .setNegativeButton("Ok", (dialog, id) -> {})
                     .create()
                     .show();
-        }
     }
 
-    public void register(Response.Listener<JSONObject> responseListener,
-                         Response.ErrorListener errorListener) {
+    public void register(Response.Listener<JSONObject> rL,
+                         Response.ErrorListener eL) {
         Log.d(TAG, "Handling Register Request");
         final String url = URL_BASE + "register.php";
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET,
-                                                url,
-                                                new JSONObject(),
-                                                responseListener,
-                                                errorListener));
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, url, new JSONObject(), rL, eL));
     }
 }
