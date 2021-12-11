@@ -39,6 +39,15 @@ public class CommunicationController {
         return instance;
     }
 
+    public void getLines(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        Log.d(TAG,"Handling GetLines Request");
+
+        String url = URL_BASE + "getLines.php";
+        try {
+            requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+        } catch (JSONException e) { e.printStackTrace(); }
+    }
+
     public void getProfile(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         Log.d(TAG,"Handling GetProfile Request");
 
@@ -53,38 +62,42 @@ public class CommunicationController {
 
         String message = null;
 
-        if (e instanceof NetworkError) {
-            message = "Cannot connect to Internet...Please check your connection!";
-        } else if (e instanceof ServerError) {
-            message = "The server could not be found. Please try again after some time!!";
-        } else if (e instanceof ParseError) {
-            message = "Parsing error! Please try again after some time!!";
-        } else if (e instanceof TimeoutError) {
-            message = "Connection TimeOut! Please check your internet connection.";
+        if(e.networkResponse.statusCode  ==  400) {
+            Log.d(TAG,"Invalid parameters");
+            message = "Errore inaspettato: riprova";
         }
+        else if(e.networkResponse.statusCode  ==  401) {
+            Log.d(TAG,"Invalid sid");
+            message = "Errore inaspettato: riprova";
+        }
+        else if(e.networkResponse.statusCode  ==  413) {
+            Log.d(TAG,"Invalid data length");
+            message = "Errore inaspettato: riprova";
+        }
+        else if (e instanceof NetworkError) message = "Cannot connect to Internet...Please check your connection!";
+        else if (e instanceof ServerError) message = "The server could not be found. Please try again after some time!!";
+        else if (e instanceof ParseError) message = "Parsing error! Please try again after some time!!";
+        else if (e instanceof TimeoutError) message = "Connection TimeOut! Please check your internet connection.";
 
         Log.e(t, e.toString());
 
-        if(message != null)
-            new AlertDialog.Builder(c)
-                    .setMessage(message)
-                    .setTitle("ERROR")
-                    .setNegativeButton("Ok", (dialog, id) -> {})
-                    .create()
-                    .show();
+        if(message != null) new AlertDialog.Builder(c).setMessage(message).setTitle("ERRORE")
+                                .setPositiveButton("Ok", (dialog, id) -> {}).create().show();
     }
 
     public void register(Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         Log.d(TAG, "Handling Register Request");
+
         String url = URL_BASE + "register.php";
         requestQueue.add(new JsonObjectRequest(Request.Method.GET, url, null, rL, eL));
     }
 
     public void setProfile(String sid, @Nullable String name, @Nullable String picture, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
         Log.d(TAG,"Handling SetProfile Request");
-        String url = URL_BASE + "setProfile.php";
 
+        String url = URL_BASE + "setProfile.php";
         JSONObject body = new JSONObject();
+
         try {
             body.put(User.SID, sid);
             if (name != null || picture != null) {

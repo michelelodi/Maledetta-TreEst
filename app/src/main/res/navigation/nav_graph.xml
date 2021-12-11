@@ -3,11 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/userFragment">
+    app:startDestination="@id/linesFragment">
 
     <fragment
         android:id="@+id/userFragment"
         android:name="it.unimi.maledettatreest.UserFragment"
         android:label="fragment_user"
-        tools:layout="@layout/fragment_user" />
+        tools:layout="@layout/fragment_user" >
+        <action
+            android:id="@+id/action_userFragment_to_linesFragment"
+            app:destination="@id/linesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/linesFragment"
+        android:name="it.unimi.maledettatreest.LinesFragment"
+        android:label="fragment_lines"
+        tools:layout="@layout/fragment_lines" >
+        <action
+            android:id="@+id/action_linesFragment_to_userFragment"
+            app:destination="@id/userFragment" />
+    </fragment>
 </navigation>
