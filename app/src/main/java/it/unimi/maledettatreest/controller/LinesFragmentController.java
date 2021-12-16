@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import androidx.appcompat.app.AlertDialog;
-import com.android.volley.VolleyError;
+import androidx.fragment.app.Fragment;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.MainActivity;
+import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.LinesModel;
 import it.unimi.maledettatreest.model.User;
 
 public class LinesFragmentController {
@@ -20,46 +24,60 @@ public class LinesFragmentController {
     private CommunicationController cc;
     private Context context;
     private final SharedPreferences prefs;
+    private LinesModel linesModel;
+    private LinesAdapter adapter;
 
-    public LinesFragmentController(Context c){
-        context =  c;
-        prefs = c.getSharedPreferences(MainActivity.APP_PREFS,0);
+    public LinesFragmentController(Fragment owner, LinesAdapter adapter){
+        context = owner.requireContext();
+        prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
+        linesModel = LinesModel.getInstance();
+        this.adapter = adapter;
     }
 
-    public void firstRunSetUp() {
+    public void applicationSetUp() {
         Log.d(TAG,"Check first run");
 
         cc = CommunicationController.getInstance(context);
+
         if(prefs.getString(User.SID,MainActivity.DOESNT_EXIST).equals(MainActivity.DOESNT_EXIST)){
-            //TODO first run
             Log.d(TAG,"First Run: Setting up application");
-            cc.register(this::registrationResponse, this::registrationError);
+            cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG));
         }else{
-            //TODO normal run
             Log.d(TAG,"Normal Run");
+            getLines();
         }
     }
 
-    private void registrationError(VolleyError error) {
-        cc.handleVolleyError(error,context,TAG);
+    public void getLines(){
+        cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST),this::handleGetLinesResponse,
+                error -> cc.handleVolleyError(error,context,TAG));
+    }
+
+    private void handleGetLinesResponse(JSONObject response) {
+        Log.d(TAG,"Handling getLines Response");
+
+        try {
+            for(int i = 0; i < response.getJSONArray("lines").length(); i++) {
+                linesModel.addLine(new Line(((JSONObject) response.getJSONArray("lines").get(i))));
+                adapter.notifyItemChanged(i);
+            }
+        } catch (JSONException e) { e.printStackTrace(); }
     }
 
     private void registrationResponse(JSONObject response) {
         Log.d(TAG,"Handling Register Response");
-
         try {
             prefs.edit().putString(User.SID, response.get(User.SID).toString()).apply();
-
             Log.d(TAG, "Successfully set up");
         } catch (JSONException e) {
             e.printStackTrace();
             Log.d(TAG,"Missing Sid. The World Is Ending");
-
             new AlertDialog.Builder(context).setMessage(UNEXPECTED_ERROR_MESSAGE)
                     .setTitle(UNEXPECTED_ERROR_TITLE)
                     .setPositiveButton(RIPROVA,
-                            (dialog, id) -> cc.register(this::registrationResponse, this::registrationError))
+                            (dialog, id) -> cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG)))
                     .create().show();
         }
+        getLines();
     }
 }

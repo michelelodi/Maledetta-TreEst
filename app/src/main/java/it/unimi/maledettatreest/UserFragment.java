@@ -61,7 +61,7 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ufc = new UserFragmentController(context,view, getProfilePicture);
+        ufc = new UserFragmentController(context, requireActivity(),view, getProfilePicture);
         this.view = view;
 
         if(prefs.getString(User.NAME, MainActivity.DOESNT_EXIST).equals(MainActivity.DOESNT_EXIST)) {

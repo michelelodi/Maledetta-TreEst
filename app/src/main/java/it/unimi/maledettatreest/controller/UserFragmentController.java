@@ -1,15 +1,20 @@
 package it.unimi.maledettatreest.controller;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
@@ -30,10 +35,12 @@ public class UserFragmentController{
     private final SharedPreferences prefs;
     private View view;
     private ImageView profilePicture;
+    private Activity activity;
     ActivityResultLauncher<String> getProfilePicture;
 
-    public UserFragmentController(Context c, View v,ActivityResultLauncher<String> arl){
+    public UserFragmentController(Context c, Activity a, View v,ActivityResultLauncher<String> arl){
         context = c;
+        activity = a;
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
         cc = CommunicationController.getInstance(context);
         view = v;
@@ -90,6 +97,7 @@ public class UserFragmentController{
                     Log.d(TAG,"User did not change his name");
                 } else {
                     prefs.edit().putString(User.NAME,newName).apply();
+                    hideSoftKeyboard(activity);
                     cc.setProfile(prefs.getString(User.SID, MainActivity.DOESNT_EXIST),
                             newName,
                             null,
@@ -100,6 +108,7 @@ public class UserFragmentController{
         if(!editPicture.hasOnClickListeners())
             editPicture.setOnClickListener(view -> {
                 Log.d(TAG,"Editing picture");
+                hideSoftKeyboard(activity);
                 getProfilePicture.launch("image/*");
             });
 
@@ -107,7 +116,20 @@ public class UserFragmentController{
     }
 
     public void handleSetProfileResponse(JSONObject jsonObject) {
-        Log.d(TAG,"Handling SetProfile Response");
+        Log.d(TAG,"Profile successfully updated");
+        Toast.makeText(context, "Profile successfully updated", Toast.LENGTH_LONG).show();
+    }
 
+    private void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        if(inputMethodManager.isAcceptingText()){
+            Log.d(TAG,"Hiding keyboard");
+            inputMethodManager.hideSoftInputFromWindow(
+                    activity.getCurrentFocus().getWindowToken(),
+                    0
+            );
+        }
     }
 }

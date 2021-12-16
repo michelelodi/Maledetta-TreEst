@@ -2,10 +2,8 @@ package it.unimi.maledettatreest.controller;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -16,11 +14,11 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import it.unimi.maledettatreest.MainActivity;
+import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.Post;
 import it.unimi.maledettatreest.model.User;
 
 public class CommunicationController {
@@ -39,72 +37,95 @@ public class CommunicationController {
         return instance;
     }
 
-    public void getLines(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
-        Log.d(TAG,"Handling GetLines Request");
-
-        String url = URL_BASE + "getLines.php";
+    public void addPost(String sid, String did, @Nullable String delay, @Nullable String status,
+                        @Nullable String comment, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
         try {
-            requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+            baseRequest("addPost", new JSONObject().put(User.SID, sid).put(Line.DID, did)
+                    .put(Post.DELAY, delay).put(Post.STATUS, status).put(Post.COMMENT, comment), rL, eL);
+        } catch (JSONException e) {e.printStackTrace();}
+    }
+
+    private void baseRequest(String url, JSONObject body, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
+        Log.d(TAG,"Handling " + url + " Request");
+
+        String requestUrl = URL_BASE + url + ".php";
+        requestQueue.add(new JsonObjectRequest(Request.Method.POST, requestUrl, body, rL, eL));
+    }
+
+    public void follow(String sid, String uid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("follow", new JSONObject().put(User.SID,sid).put(User.UID,uid),rL,eL);
+        } catch (JSONException e) { e.printStackTrace(); }
+    }
+
+    public void getLines(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("getLines", new JSONObject().put(User.SID,sid),rL,eL);
+        } catch (JSONException e) { e.printStackTrace(); }
+    }
+
+    public void getPosts(String sid, String did, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("getPosts", new JSONObject().put(User.SID,sid).put(Line.DID,did),rL,eL);
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
     public void getProfile(String sid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
-        Log.d(TAG,"Handling GetProfile Request");
-
-        String url = URL_BASE + "getProfile.php";
         try {
-            requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, new JSONObject().put(User.SID,sid), rL, eL));
+            baseRequest("getProfile", new JSONObject().put(User.SID,sid),rL,eL);
+        } catch (JSONException e) { e.printStackTrace(); }
+    }
+
+    public void getStations(String sid, String did, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("getStations", new JSONObject().put(User.SID,sid).put(Line.DID,did),rL,eL);
+        } catch (JSONException e) { e.printStackTrace(); }
+    }
+
+    public void getUserPicture(String sid, String uid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("getUserPicture", new JSONObject().put(User.SID,sid).put(User.UID,uid),rL,eL);
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
     public void handleVolleyError(VolleyError e, Context c, String t) {
         Log.d(TAG,"Handling Volley Error");
 
-        String message = null;
+        String message = "Errore inaspettato: riprova";
 
-        if(e.networkResponse.statusCode  ==  400) {
-            Log.d(TAG,"Invalid parameters");
-            message = "Errore inaspettato: riprova";
+        switch(e.networkResponse.statusCode){
+            case 400:
+                Log.d(TAG,"Invalid parameters");
+            case 401:
+                Log.d(TAG,"Invalid sid");
+            case 413:
+                Log.d(TAG,"Invalid data length");
+            default:
+                if (e instanceof NetworkError) message = "Cannot connect to Internet...Please check your connection!";
+                else if (e instanceof ServerError) message = "The server could not be found. Please try again after some time!!";
+                else if (e instanceof ParseError) message = "Parsing error! Please try again after some time!!";
+                else if (e instanceof TimeoutError) message = "Connection TimeOut! Please check your internet connection.";
         }
-        else if(e.networkResponse.statusCode  ==  401) {
-            Log.d(TAG,"Invalid sid");
-            message = "Errore inaspettato: riprova";
-        }
-        else if(e.networkResponse.statusCode  ==  413) {
-            Log.d(TAG,"Invalid data length");
-            message = "Errore inaspettato: riprova";
-        }
-        else if (e instanceof NetworkError) message = "Cannot connect to Internet...Please check your connection!";
-        else if (e instanceof ServerError) message = "The server could not be found. Please try again after some time!!";
-        else if (e instanceof ParseError) message = "Parsing error! Please try again after some time!!";
-        else if (e instanceof TimeoutError) message = "Connection TimeOut! Please check your internet connection.";
-
         Log.e(t, e.toString());
-
-        if(message != null) new AlertDialog.Builder(c).setMessage(message).setTitle("ERRORE")
+        new AlertDialog.Builder(c).setMessage(message).setTitle("ERRORE")
                                 .setPositiveButton("Ok", (dialog, id) -> {}).create().show();
     }
 
     public void register(Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
-        Log.d(TAG, "Handling Register Request");
-
-        String url = URL_BASE + "register.php";
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, url, null, rL, eL));
+        baseRequest("register", new JSONObject(), rL, eL);
     }
 
-    public void setProfile(String sid, @Nullable String name, @Nullable String picture, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
-        Log.d(TAG,"Handling SetProfile Request");
-
-        String url = URL_BASE + "setProfile.php";
-        JSONObject body = new JSONObject();
-
+    public void setProfile(String sid, @Nullable String name, @Nullable String picture,
+                           Response.Listener<JSONObject> rL, Response.ErrorListener eL){
         try {
-            body.put(User.SID, sid);
-            if (name != null || picture != null) {
-                if (name != null) body.put(User.NAME, name);
-                if (picture != null) body.put(User.PICTURE, picture);
-            }
+            baseRequest("setProfile", new JSONObject().put(User.SID, sid)
+                    .put(User.NAME, name).put(User.PICTURE, picture), rL, eL);
         } catch (JSONException e) {e.printStackTrace();}
-        requestQueue.add(new JsonObjectRequest(Request.Method.POST, url, body, rL, eL));
+    }
+
+    public void unfollow(String sid, String uid, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
+        try {
+            baseRequest("unfollow", new JSONObject().put(User.SID,sid).put(User.UID,uid),rL,eL);
+        } catch (JSONException e) { e.printStackTrace(); }
     }
 }
