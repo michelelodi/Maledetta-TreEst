@@ -1,5 +1,6 @@
 package it.unimi.maledettatreest.controller;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,16 +18,18 @@ public class LinesAdapter extends RecyclerView.Adapter<LineViewHolder>{
     private final String TAG = MainActivity.TAG_BASE + "LinesAdapter";
 
     private final LayoutInflater inflater;
+    private Activity activity;
 
-    public LinesAdapter(Context context){
+    public LinesAdapter(Activity activity, Context context){
         this.inflater = LayoutInflater.from(context);
+        this.activity = activity;
     }
 
     @NonNull
     @Override
     public LineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.d(TAG, "Creating LineViewHolder");
-        return new LineViewHolder(inflater.inflate(R.layout.fragment_lines_single_row, parent, false));
+        return new LineViewHolder(activity, inflater.inflate(R.layout.fragment_lines_single_row, parent, false));
     }
 
     @Override

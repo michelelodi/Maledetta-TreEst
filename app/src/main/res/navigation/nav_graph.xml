@@ -22,5 +22,17 @@
         <action
             android:id="@+id/action_linesFragment_to_userFragment"
             app:destination="@id/userFragment" />
+        <action
+            android:id="@+id/action_linesFragment_to_boardFragment"
+            app:destination="@id/boardFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/boardFragment"
+        android:name="it.unimi.maledettatreest.BoardFragment"
+        android:label="fragment_board"
+        tools:layout="@layout/fragment_board" >
+        <action
+            android:id="@+id/action_boardFragment_to_linesFragment"
+            app:destination="@id/linesFragment" />
     </fragment>
 </navigation>

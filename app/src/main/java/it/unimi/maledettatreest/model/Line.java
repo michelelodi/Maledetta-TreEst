@@ -11,6 +11,7 @@ import it.unimi.maledettatreest.MainActivity;
 
 public class Line {
     public static final String DID = "did";
+    public static final String LNAME = "lname";
     public static final String SNAME = "sname";
 
     private final String TAG = MainActivity.TAG_BASE + "Line";
@@ -30,9 +31,11 @@ public class Line {
             HashMap<String,String> terminus1 = new HashMap<>();
             terminus1.put(SNAME,line.getJSONObject(TERMINUS_1).getString(SNAME));
             terminus1.put(DID,line.getJSONObject(TERMINUS_1).getString(DID));
+            terminus1.put(LNAME,name);
             HashMap<String,String> terminus2 = new HashMap<>();
             terminus2.put(SNAME,line.getJSONObject(TERMINUS_2).getString(SNAME));
             terminus2.put(DID,line.getJSONObject(TERMINUS_2).getString(DID));
+            terminus2.put(LNAME,name);
 
             termini = new HashMap<>();
             termini.put(TERMINUS_1,terminus1);
