@@ -1,36 +1,28 @@
 package it.unimi.maledettatreest.controller;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import it.unimi.maledettatreest.LineViewHolder;
 import it.unimi.maledettatreest.MainActivity;
 import it.unimi.maledettatreest.PostViewHolder;
 import it.unimi.maledettatreest.R;
-import it.unimi.maledettatreest.model.LinesModel;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostViewHolder>{
 
     private final String TAG = MainActivity.TAG_BASE + "PostsAdapter";
 
     private final LayoutInflater inflater;
-    private int postsSize;
     private JSONArray posts;
 
-    public PostsAdapter(Context context, JSONArray posts, int postsSize){
+    public PostsAdapter(Context context, JSONArray posts){
         this.inflater = LayoutInflater.from(context);
         this.posts = posts;
-        this.postsSize = postsSize;
     }
 
     @NonNull
@@ -52,6 +44,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostViewHolder>{
 
     @Override
     public int getItemCount() {
-        return postsSize;
+        return posts.length();
     }
 }

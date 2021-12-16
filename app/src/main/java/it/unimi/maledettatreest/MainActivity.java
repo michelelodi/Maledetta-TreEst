@@ -4,13 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.Navigation;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.material.navigation.NavigationBarView;
-
-import it.unimi.maledettatreest.controller.MainActivityController;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +27,20 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"onCreate");
 
         ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item ->
-            MainActivityController.setupListeners(item,this));
+        {
+            switch (item.getItemId()) {
+                case R.id.linesBottomNav:
+                    Log.d(TAG, "Navigating to Lines");
+                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(UserFragmentDirections.actionUserFragmentToLinesFragment());
+                    return true;
+                case R.id.userBottomNav:
+                    Log.d(TAG, "Navigating to User");
+                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(LinesFragmentDirections.actionLinesFragmentToUserFragment());
+                    return true;
+                default:
+                    Log.d(TAG, "Unknown menu item " + item);
+                    return false;
+            }
+        });
     }
 }
