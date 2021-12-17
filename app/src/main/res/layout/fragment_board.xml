@@ -34,6 +34,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/snameBoardFragmentTV" />
 
+    <Button
+        android:id="@+id/backToHomeB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/back_to_home_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/didBoardFragmentTV" />
+
+    <Button
+        android:id="@+id/revertB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/revert_button"
+        app:layout_constraintStart_toEndOf="@+id/backToHomeB"
+        app:layout_constraintTop_toTopOf="@+id/backToHomeB" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/postsRecyclerView"
         android:layout_width="match_parent"
@@ -41,5 +60,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/didBoardFragmentTV" />
+        app:layout_constraintTop_toBottomOf="@+id/backToHomeB" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

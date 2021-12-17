@@ -3,24 +3,17 @@ package it.unimi.maledettatreest.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
 import java.util.Iterator;
 import it.unimi.maledettatreest.MainActivity;
 import it.unimi.maledettatreest.R;
@@ -30,12 +23,12 @@ import it.unimi.maledettatreest.services.ImageManager;
 public class UserFragmentController{
 
     private final String TAG = MainActivity.TAG_BASE + "UserFragmentController";
+
     private final Context context;
-    private CommunicationController cc;
+    private final CommunicationController cc;
     private final SharedPreferences prefs;
-    private View view;
-    private ImageView profilePicture;
-    private Activity activity;
+    private final View view;
+    private final Activity activity;
     ActivityResultLauncher<String> getProfilePicture;
 
     public UserFragmentController(Context c, Activity a, View v,ActivityResultLauncher<String> arl){
@@ -62,7 +55,7 @@ public class UserFragmentController{
     public void setupView(){
         Log.d(TAG,"Setting Up View");
 
-        profilePicture = view.findViewById(R.id.profilePictureIV);
+        ImageView profilePicture = view.findViewById(R.id.profilePictureIV);
         EditText profileName = view.findViewById(R.id.profileNameET);
         Button editName = view.findViewById(R.id.editNameB);
         Button editPicture = view.findViewById(R.id.editPictureB);
@@ -85,13 +78,13 @@ public class UserFragmentController{
                 String newName = profileName.getText().toString();
                 if(newName.isEmpty()){
                     Log.d(TAG,"User entered en empty name");
-                    new AlertDialog.Builder(context).setMessage("Il nome non può essere vuoto")
-                            .setTitle(MainActivity.ERRORE).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
+                    new AlertDialog.Builder(context).setMessage("Name cannot be empty")
+                            .setTitle(MainActivity.ERROR).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
                             .create().show();
                 }else if(newName.length() > 20){
                     Log.d(TAG,"User entered a name of length " + newName.length());
-                    new AlertDialog.Builder(context).setMessage("Il nome deve avere al massimo 20 caratteri")
-                            .setTitle(MainActivity.ERRORE).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
+                    new AlertDialog.Builder(context).setMessage("Name cannot exceed 20 characters")
+                            .setTitle(MainActivity.ERROR).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
                             .create().show();
                 } else if(newName.equals(name)){
                     Log.d(TAG,"User did not change his name");

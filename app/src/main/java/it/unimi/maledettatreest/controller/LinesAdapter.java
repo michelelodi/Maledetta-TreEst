@@ -15,21 +15,23 @@ import it.unimi.maledettatreest.R;
 import it.unimi.maledettatreest.model.LinesModel;
 
 public class LinesAdapter extends RecyclerView.Adapter<LineViewHolder>{
-    private final String TAG = MainActivity.TAG_BASE + "LinesAdapter";
+    private static final String TAG = MainActivity.TAG_BASE + "LinesAdapter";
 
     private final LayoutInflater inflater;
-    private Activity activity;
+    private final Activity activity;
+    private final Context context;
 
     public LinesAdapter(Activity activity, Context context){
         this.inflater = LayoutInflater.from(context);
         this.activity = activity;
+        this.context = context;
     }
 
     @NonNull
     @Override
     public LineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.d(TAG, "Creating LineViewHolder");
-        return new LineViewHolder(activity, inflater.inflate(R.layout.fragment_lines_single_row, parent, false));
+        return new LineViewHolder(activity, context, inflater.inflate(R.layout.fragment_lines_single_row, parent, false));
     }
 
     @Override

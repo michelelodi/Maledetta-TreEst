@@ -2,12 +2,16 @@
     <string name="app_name">Maledetta TreEst</string>
 
     <!-- ProfileFragment -->
-    <string name="profile_name_placeholder">Nome</string>
-    <string name="profile_pic_description">Immagine del profilo</string>
-    <string name="edit_picture_button">Modifica Immagine</string>
-    <string name="edit_name_button">Modifica Nome</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="profile_name_placeholder">Name</string>
+    <string name="profile_pic_description">Profile Picture</string>
+    <string name="edit_picture_button">Edit Picture</string>
+    <string name="edit_name_button">Edit Name</string>
+
+    <!-- BoardFragment -->
+    <string name="back_to_home_button">BACK</string>
+    <string name="revert_button">REVERT</string>
+
+    <!-- BottomNav -->
     <string name="userBottomNavText">User</string>
     <string name="linesBottomNavText">Lines</string>
 </resources>

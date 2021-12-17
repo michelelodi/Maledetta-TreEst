@@ -12,11 +12,13 @@ import it.unimi.maledettatreest.MainActivity;
 public class Line {
     public static final String DID = "did";
     public static final String LNAME = "lname";
+    public static final String REVERSE_DID = "reverseDid";
+    public static final String REVERSE_SNAME = "reverseSname";
     public static final String SNAME = "sname";
 
-    private final String TAG = MainActivity.TAG_BASE + "Line";
-    private final String TERMINUS_1 = "terminus1";
-    private final String TERMINUS_2 = "terminus2";
+    private static final String TAG = MainActivity.TAG_BASE + "Line";
+    private static final String TERMINUS_1 = "terminus1";
+    private static final String TERMINUS_2 = "terminus2";
 
     private ArrayList<Station> stations;
     private String name;
@@ -32,10 +34,14 @@ public class Line {
             terminus1.put(SNAME,line.getJSONObject(TERMINUS_1).getString(SNAME));
             terminus1.put(DID,line.getJSONObject(TERMINUS_1).getString(DID));
             terminus1.put(LNAME,name);
+            terminus1.put(REVERSE_DID,line.getJSONObject(TERMINUS_2).getString(DID));
+            terminus1.put(REVERSE_SNAME,line.getJSONObject(TERMINUS_2).getString(SNAME));
             HashMap<String,String> terminus2 = new HashMap<>();
             terminus2.put(SNAME,line.getJSONObject(TERMINUS_2).getString(SNAME));
             terminus2.put(DID,line.getJSONObject(TERMINUS_2).getString(DID));
             terminus2.put(LNAME,name);
+            terminus2.put(REVERSE_DID,line.getJSONObject(TERMINUS_1).getString(DID));
+            terminus2.put(REVERSE_SNAME,line.getJSONObject(TERMINUS_1).getString(SNAME));
 
             termini = new HashMap<>();
             termini.put(TERMINUS_1,terminus1);

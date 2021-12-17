@@ -18,7 +18,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostViewHolder>{
     private final String TAG = MainActivity.TAG_BASE + "PostsAdapter";
 
     private final LayoutInflater inflater;
-    private JSONArray posts;
+    private final JSONArray posts;
 
     public PostsAdapter(Context context, JSONArray posts){
         this.inflater = LayoutInflater.from(context);

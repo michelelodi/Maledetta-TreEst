@@ -44,8 +44,7 @@ public class LinesFragment extends Fragment {
         super.onCreate(savedInstanceState);
         context = requireContext();
         adapter = new LinesAdapter(requireActivity(), context);
-        lfc = new LinesFragmentController(this);
-        lfc.applicationSetUp(this::handleGetLinesResponse);
+        lfc = new LinesFragmentController(this, requireActivity());
     }
 
     @Override
@@ -59,6 +58,9 @@ public class LinesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onViewCreated");
         super.onViewCreated(view, savedInstanceState);
+
+        lfc.applicationSetUp(this::handleGetLinesResponse);
+
         RecyclerView listView = view.findViewById(R.id.postsRecyclerView);
         listView.setLayoutManager(new LinearLayoutManager(context));
         listView.setAdapter(adapter);

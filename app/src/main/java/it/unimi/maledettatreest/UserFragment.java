@@ -83,7 +83,7 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
             String picture = ImageManager.bitmapToBase64(bitmap);
             if(picture.length()>137000){
                 new AlertDialog.Builder(context).setMessage("Immagine troppo grande")
-                        .setTitle(MainActivity.ERRORE).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
+                        .setTitle(MainActivity.ERROR).setPositiveButton(MainActivity.OK, (dialog, id) -> {})
                         .create().show();
             }else{
                 Log.d(TAG,"Setting new image and updating shared preferences");

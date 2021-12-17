@@ -1,7 +1,6 @@
 package it.unimi.maledettatreest.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class LinesModel {
     private static LinesModel instance;

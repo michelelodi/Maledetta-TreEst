@@ -12,7 +12,7 @@ import com.google.android.material.navigation.NavigationBarView;
 public class MainActivity extends AppCompatActivity {
 
     public static final String DOESNT_EXIST = "-1";
-    public static final String ERRORE = "ERRORE";
+    public static final String ERROR = "ERROR";
     public static final String OK = "Ok";
     public static final String TAG_BASE = "MALEDETTATREEST_";
     public static final String APP_PREFS = "prefs";
@@ -26,8 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG,"onCreate");
 
-        ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item ->
-        {
+        ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.linesBottomNav:
                     Log.d(TAG, "Navigating to Lines");
@@ -40,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     Log.d(TAG, "Unknown menu item " + item);
                     return false;
-            }
-        });
+            } });
     }
 }
