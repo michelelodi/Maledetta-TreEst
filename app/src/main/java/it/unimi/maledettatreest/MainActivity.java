@@ -1,13 +1,14 @@
 package it.unimi.maledettatreest;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-
 import com.google.android.material.navigation.NavigationBarView;
+import java.util.Objects;
+import it.unimi.maledettatreest.model.Line;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,7 +17,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String OK = "Ok";
     public static final String TAG_BASE = "MALEDETTATREEST_";
     public static final String APP_PREFS = "prefs";
-    private final String TAG = TAG_BASE + "MainActivity";
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -24,20 +24,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d(TAG,"onCreate");
+        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
         ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item -> {
+            Class<? extends Fragment> currentFragmentClass = Objects.requireNonNull(navHostFragment)
+                    .getChildFragmentManager().getFragments().get(0).getClass();
             switch (item.getItemId()) {
                 case R.id.linesBottomNav:
-                    Log.d(TAG, "Navigating to Lines");
-                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(UserFragmentDirections.actionUserFragmentToLinesFragment());
+                    if(currentFragmentClass == BoardFragment.class) {
+                        SharedPreferences prefs = getSharedPreferences(MainActivity.APP_PREFS,0);
+                        prefs.edit().remove(Line.DID)
+                                .remove(Line.SNAME)
+                                .remove(Line.LNAME)
+                                .remove(Line.REVERSE_DID)
+                                .remove(Line.REVERSE_SNAME).apply();
+
+                        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(BoardFragmentDirections.actionBoardFragmentToLinesFragment());
+                    }
+                    else if(currentFragmentClass == UserFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(UserFragmentDirections.actionUserFragmentToLinesFragment());
                     return true;
                 case R.id.userBottomNav:
-                    Log.d(TAG, "Navigating to User");
-                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(LinesFragmentDirections.actionLinesFragmentToUserFragment());
+                    if(currentFragmentClass == BoardFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(BoardFragmentDirections.actionBoardFragmentToUserFragment());
+                    else if(currentFragmentClass == UserFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(LinesFragmentDirections.actionLinesFragmentToUserFragment());
                     return true;
                 default:
-                    Log.d(TAG, "Unknown menu item " + item);
                     return false;
             } });
     }

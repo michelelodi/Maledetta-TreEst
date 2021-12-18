@@ -3,6 +3,7 @@ package it.unimi.maledettatreest.model;
 import java.util.ArrayList;
 
 public class LinesModel {
+
     private static LinesModel instance;
     private final ArrayList<Line> lines;
 

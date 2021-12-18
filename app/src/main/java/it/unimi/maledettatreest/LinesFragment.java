@@ -29,14 +29,13 @@ public class LinesFragment extends Fragment {
     private final static String UNEXPECTED_ERROR_MESSAGE = "Something went wrong. Please RETRY";
     private final static String UNEXPECTED_ERROR_TITLE = "OPS";
     private final String TAG = MainActivity.TAG_BASE + "LinesFragment";
+
     private Context context;
     private LinesAdapter adapter;
     private CommunicationController cc;
     private SharedPreferences prefs;
 
     public LinesFragment() {}
-
-    public static LinesFragment newInstance() { return new LinesFragment(); }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,23 +48,24 @@ public class LinesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) { return inflater.inflate(R.layout.fragment_lines, container, false); }
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_lines, container, false);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"Check first run");
         super.onViewCreated(view, savedInstanceState);
+
         if(!prefs.contains(User.SID)){
-            Log.d(TAG,"First Run: Setting up application");
             cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG));
         }else {
-            Log.d(TAG, "Normal Run");
             if (prefs.contains(Line.DID))
                 Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_linesFragment_to_boardFragment);
             else if (LinesModel.getInstance().getSize() == 0)
                 cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), this::handleGetLinesResponse,
                         error -> cc.handleVolleyError(error,context,TAG));
         }
+
         RecyclerView listView = view.findViewById(R.id.postsRecyclerView);
         listView.setLayoutManager(new LinearLayoutManager(context));
         listView.setAdapter(adapter);
@@ -73,26 +73,27 @@ public class LinesFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     private void handleGetLinesResponse(JSONObject response) {
-        Log.d(TAG,"Handling getLines Response");
         try {
             for(int i = 0; i < response.getJSONArray("lines").length(); i++)
-                LinesModel.getInstance().addLine(new Line(((JSONObject) response.getJSONArray("lines").get(i))));
+                LinesModel.getInstance()
+                        .addLine(new Line(((JSONObject) response.getJSONArray("lines")
+                                                                                        .get(i))));
+
             adapter.notifyDataSetChanged();
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
     private void registrationResponse(JSONObject response) {
-        Log.d(TAG,"Handling Register Response");
         try {
             prefs.edit().putString(User.SID, response.get(User.SID).toString()).apply();
-            Log.d(TAG, "Successfully set up");
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             e.printStackTrace();
-            Log.d(TAG,"Missing Sid. Server Fucked Up.");
             new AlertDialog.Builder(context).setMessage(UNEXPECTED_ERROR_MESSAGE)
                     .setTitle(UNEXPECTED_ERROR_TITLE)
-                    .setPositiveButton(RETRY,
-                            (dialog, id) -> cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG)))
+                    .setPositiveButton(RETRY, (dialog, id) ->
+                                                    cc.register(this::registrationResponse, error ->
+                                                            cc.handleVolleyError(error,context,TAG)))
                     .create().show();
         }
         cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), this::handleGetLinesResponse,

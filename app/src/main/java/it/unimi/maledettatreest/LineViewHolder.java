@@ -22,6 +22,7 @@ public class LineViewHolder extends RecyclerView.ViewHolder {
 
     public LineViewHolder(Activity activity, Context context, @NonNull View itemView) {
         super(itemView);
+
         lineNameTV = itemView.findViewById(R.id.lineNameTV);
         terminus1B = itemView.findViewById(R.id.terminus1B);
         terminus2B = itemView.findViewById(R.id.terminus2B);
@@ -29,8 +30,6 @@ public class LineViewHolder extends RecyclerView.ViewHolder {
         this.context = context;
     }
     public void updateContent(Line line){
-        String TAG = MainActivity.TAG_BASE + "LineViewHolder";
-        Log.d(TAG,"Updating content for line " + line.getName());
         lineNameTV.setText(line.getName());
         terminus1B.setText(line.getTerminus(1).get(Line.SNAME));
         terminus2B.setText(line.getTerminus(2).get(Line.SNAME));

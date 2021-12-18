@@ -17,13 +17,13 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.MainActivity;
-import it.unimi.maledettatreest.PostViewHolder;
 import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.Post;
 import it.unimi.maledettatreest.model.User;
 
 public class CommunicationController {
+
     private static final String URL_BASE = "https://ewserver.di.unimi.it/mobicomp/treest/";
-    private static final String TAG = MainActivity.TAG_BASE + "CommunicationController";
 
     private static CommunicationController instance;
     private final RequestQueue requestQueue;
@@ -41,15 +41,13 @@ public class CommunicationController {
                         @Nullable String comment, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
         try {
             baseRequest("addPost", new JSONObject().put(User.SID, sid).put(Line.DID, did)
-                    .put(PostViewHolder.POST_DELAY, delay)
-                    .put(PostViewHolder.POST_STATUS, status)
-                    .put(PostViewHolder.POST_COMMENT, comment), rL, eL);
+                                                        .put(Post.DELAY, delay)
+                                                        .put(Post.STATUS, status)
+                                                        .put(Post.COMMENT, comment), rL, eL);
         } catch (JSONException e) {e.printStackTrace();}
     }
 
     private void baseRequest(String url, JSONObject body, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
-        Log.d(TAG,"Handling " + url + " Request");
-
         String requestUrl = URL_BASE + url + ".php";
         requestQueue.add(new JsonObjectRequest(Request.Method.POST, requestUrl, body, rL, eL));
     }
@@ -90,9 +88,7 @@ public class CommunicationController {
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
-    public void handleVolleyError(VolleyError e, Context c, String t) {
-        Log.d(TAG,"Handling Volley Error");
-
+    public void handleVolleyError(VolleyError e, Context c, String TAG) {
         String message = "Unexpected error: please retry.";
 
         switch(e.networkResponse.statusCode){
@@ -108,7 +104,7 @@ public class CommunicationController {
                 else if (e instanceof ParseError) message = "Parsing error! Please try again after some time!!";
                 else if (e instanceof TimeoutError) message = "Connection TimeOut! Please check your internet connection.";
         }
-        Log.e(t, e.toString());
+        Log.e(TAG, e.toString());
         new AlertDialog.Builder(c).setMessage(message).setTitle(MainActivity.ERROR)
                                 .setPositiveButton("Ok", (dialog, id) -> {}).create().show();
     }
