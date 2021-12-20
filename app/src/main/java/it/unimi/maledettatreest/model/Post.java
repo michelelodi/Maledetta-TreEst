@@ -3,7 +3,7 @@ package it.unimi.maledettatreest.model;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Post {
 
@@ -51,15 +51,22 @@ public class Post {
 
     public String getPicture() { return picture; }
 
-    public void setPicture(String picture) { this.picture = picture; }
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
 
-    public static ArrayList<Post> getPostsFromJSONArray(JSONArray jsonArray){
-        ArrayList<Post> posts = new ArrayList<>();
+    public static LinkedList<Post> getPostsFromJSONArray(JSONArray jsonArray){
+        LinkedList<Post> followedPosts = new LinkedList<>();
+        LinkedList<Post> unfollowedPosts = new LinkedList<>();
         for(int i = 0; i < jsonArray.length(); i++){
             try {
-                posts.add(new Post((JSONObject) jsonArray.get(i)));
+                if(Boolean.parseBoolean(((JSONObject) jsonArray.get(i)).getString(FOLLOWING_AUTHOR)))
+                    followedPosts.add(new Post((JSONObject) jsonArray.get(i)));
+                else
+                    unfollowedPosts.add(new Post((JSONObject) jsonArray.get(i)));
             } catch (JSONException e) { e.printStackTrace(); }
         }
-        return posts;
+        followedPosts.addAll(unfollowedPosts);
+        return followedPosts;
     }
 }

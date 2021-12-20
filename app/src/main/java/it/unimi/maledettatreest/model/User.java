@@ -13,6 +13,12 @@ public class User {
 
     private String uid, pversion, picture;
 
+    public User(String uid, String pversion, String picture) {
+        this.uid = uid;
+        this.pversion = pversion;
+        this.picture = picture;
+    }
+
     public User(JSONObject user){
         try {
             uid = user.getString(UID);

@@ -8,18 +8,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.LinkedList;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.controller.EditLineDirectionClickListener;
 import it.unimi.maledettatreest.controller.PostsAdapter;
 import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.MaledettaTreEstDB;
 import it.unimi.maledettatreest.model.Post;
 import it.unimi.maledettatreest.model.User;
 import it.unimi.maledettatreest.model.UsersModel;
@@ -35,7 +40,9 @@ public class BoardFragment extends Fragment {
     private String sid;
     private View view;
     private PostsAdapter adapter;
-    private ArrayList<Post> posts;
+    private static LinkedList<Post> posts;
+    private Looper secondaryThreadLooper;
+    private MaledettaTreEstDB db;
 
     public BoardFragment() {}
 
@@ -47,6 +54,12 @@ public class BoardFragment extends Fragment {
         cc = CommunicationController.getInstance(context);
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
         sid = prefs.getString(User.SID, MainActivity.DOESNT_EXIST);
+
+        HandlerThread handlerThread = new HandlerThread("BoardHandlerThread");
+        handlerThread.start();
+        secondaryThreadLooper = handlerThread.getLooper();
+
+        db = MaledettaTreEstDB.getDatabase(context);
     }
 
     @Override
@@ -66,6 +79,9 @@ public class BoardFragment extends Fragment {
     }
 
     private void handleGetPostsResponse(JSONObject response){
+        HashMap<String, String> missingUids = new HashMap<>();
+        HashMap<String, String> foundUids = new HashMap<>();
+
         try {
             ((TextView)view.findViewById(R.id.snameBoardFragmentTV))
                     .setText(prefs.getString(Line.SNAME, MainActivity.DOESNT_EXIST));
@@ -73,47 +89,76 @@ public class BoardFragment extends Fragment {
                     .setText(prefs.getString(Line.DID, MainActivity.DOESNT_EXIST));
 
             posts = Post.getPostsFromJSONArray(response.getJSONArray("posts"));
-            HashSet<String> missingUids = new HashSet<>();
+            adapter =  new PostsAdapter(context,posts);
 
-            for(Post post : posts)
-                if(Integer.parseInt(post.getPversion()) > 0) {
-                    User user = UsersModel.getInstance().getUserByUid(post.getAuthor());
-                    if(user != null && user.getPversion().equals(post.getPversion()))
-                        post.setPicture(user.getPicture());
-                    else if(false) ;//TODO check in db
-                    else missingUids.add(post.getAuthor());
+            for (Post p : posts)
+                if(Integer.parseInt(p.getPversion()) > 0)
+                    missingUids.put(p.getAuthor(), p.getPversion());
+
+            for (String uid : new HashMap<>(missingUids).keySet()) {
+                User user = UsersModel.getInstance().getUserByUid(uid);
+                if(user != null && user.getPversion().equals(missingUids.get(uid))) {
+                   foundUids.put(uid,user.getPicture());
+                   missingUids.remove(uid);
+                }
+            }
+
+            for(int i = 0; i < posts.size(); i++)
+                if(foundUids.containsKey(posts.get(i).getAuthor())){
+                    Post updatedPost = posts.get(i);
+                    updatedPost.setPicture(foundUids.get(posts.get(i).getAuthor()));
+                    posts.set(i, updatedPost);
+                    adapter.notifyItemChanged(i);
                 }
 
-            adapter =  new PostsAdapter(context,posts);
+            for (String uid : missingUids.keySet()){
+                new Handler(secondaryThreadLooper).post(() ->
+                        MaledettaTreEstDB.databaseWriteExecutor.execute(() -> {
+                            String base64Pic = db.userPicturesDao().getPicture(uid);
+                            String storedPversion = db.userPicturesDao().getVersion(uid);
+                            if (base64Pic != null && storedPversion.equals(missingUids.get(uid))) {
+                                UsersModel.getInstance().addUser(new User(uid, storedPversion, base64Pic));
+                                requireActivity().runOnUiThread(() -> {
+                                    Log.d(TAG,"PIPPO");
+                                    for(int i = 0; i < posts.size(); i++) {
+                                        Post updatedPost = posts.get(i);
+                                        if(updatedPost.getAuthor().equals(uid)) {
+                                            updatedPost.setPicture(base64Pic);
+                                            posts.set(i, updatedPost);
+                                            adapter.notifyItemChanged(i);
+                                        }
+                                    }
+                                });
+                            } else{
+                                cc.getUserPicture(sid, uid,
+                                        this::handleGetUserPictureResponse,
+                                        error -> cc.handleVolleyError(error, context, TAG));
+                            }}));}
+
             listView.swapAdapter(adapter,true);
-
-            for(String uid : missingUids)
-                cc.getUserPicture(sid, uid, this::handleGetUserPictureResponse,
-                        error -> cc.handleVolleyError(error, context, TAG));
-
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
-    private void handleGetUserPictureResponse(JSONObject response) {
-        for(int i = 0; i < posts.size(); i++){
-            try {
+    public void handleGetUserPictureResponse(JSONObject response) {
+        try {
+            for(int i = 0; i < posts.size(); i++){
                 Post post = posts.get(i);
                 if(post.getAuthor().equals(response.getString(User.UID))){
                     post.setPicture(response.getString(User.PICTURE));
                     posts.set(i,post);
                     adapter.notifyItemChanged(i);
                 }
-            } catch (JSONException e) { e.printStackTrace(); }
-        }
+            }
+
+            UsersModel.getInstance().addUser(new User(response));
+
+            new Handler(secondaryThreadLooper).post(() -> db.storePicture(response));
+        } catch (JSONException e) { e.printStackTrace(); }
     }
 
     private void setupView(){
         ((TextView)view.findViewById(R.id.lnameBoardFragmentTV))
                 .setText(prefs.getString(Line.LNAME, MainActivity.DOESNT_EXIST));
-        ((TextView)view.findViewById(R.id.snameBoardFragmentTV))
-                .setText(prefs.getString(Line.SNAME, MainActivity.DOESNT_EXIST));
-        ((TextView)view.findViewById(R.id.didBoardFragmentTV))
-                .setText(prefs.getString(Line.DID, MainActivity.DOESNT_EXIST));
 
         view.findViewById(R.id.backToHomeB)
                 .setOnClickListener(new EditLineDirectionClickListener(requireActivity(),
