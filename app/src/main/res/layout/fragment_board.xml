@@ -46,6 +46,13 @@
         android:layout_height="wrap_content"
         android:text="@string/revert_button"
             style="?android:attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/addPostB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_post_button"
+            style="?android:attr/buttonBarButtonStyle" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

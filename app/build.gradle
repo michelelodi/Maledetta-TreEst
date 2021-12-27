@@ -23,8 +23,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_15
+        targetCompatibility JavaVersion.VERSION_15
     }
 }
 
@@ -52,7 +52,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
-    implementation "androidx.navigation:navigation-compose:2.4.0-beta02"
+    implementation "androidx.navigation:navigation-compose:2.4.0-rc01"
 
     //Room
     def room_version = "2.4.0"

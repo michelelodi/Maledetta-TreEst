@@ -1,5 +1,4 @@
 package it.unimi.maledettatreest;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,7 +117,6 @@ public class BoardFragment extends Fragment {
                             if (base64Pic != null && storedPversion.equals(missingUids.get(uid))) {
                                 UsersModel.getInstance().addUser(new User(uid, storedPversion, base64Pic));
                                 requireActivity().runOnUiThread(() -> {
-                                    Log.d(TAG,"PIPPO");
                                     for(int i = 0; i < posts.size(); i++) {
                                         Post updatedPost = posts.get(i);
                                         if(updatedPost.getAuthor().equals(uid)) {
@@ -133,7 +130,10 @@ public class BoardFragment extends Fragment {
                                 cc.getUserPicture(sid, uid,
                                         this::handleGetUserPictureResponse,
                                         error -> cc.handleVolleyError(error, context, TAG));
-                            }}));}
+                            }
+                        })
+                );
+            }
 
             listView.swapAdapter(adapter,true);
         } catch (JSONException e) { e.printStackTrace(); }
