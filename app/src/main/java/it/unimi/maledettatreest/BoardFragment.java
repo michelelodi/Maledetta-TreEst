@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
@@ -175,6 +176,11 @@ public class BoardFragment extends Fragment {
 
             cc.getPosts(sid, prefs.getString(Line.DID,MainActivity.DOESNT_EXIST),
                     this::handleGetPostsResponse, error -> cc.handleVolleyError(error, context, TAG));
+        });
+
+        view.findViewById(R.id.addPostB).setOnClickListener(v->{
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                    .navigate(BoardFragmentDirections.actionBoardFragmentToAddPostFragment());
         });
     }
 }

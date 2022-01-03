@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
                     else if(currentFragmentClass == UserFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(UserFragmentDirections.actionUserFragmentToLinesFragment());
+                    else if(currentFragmentClass == AddPostFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(AddPostFragmentDirections.actionAddPostFragmentToLinesFragment());
                     return true;
                 case R.id.userBottomNav:
                     if(currentFragmentClass == BoardFragment.class)
@@ -52,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
                     else if(currentFragmentClass == UserFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(LinesFragmentDirections.actionLinesFragmentToUserFragment());
+                    else if(currentFragmentClass == AddPostFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(AddPostFragmentDirections.actionAddPostFragmentToUserFragment());
                     return true;
                 default:
                     return false;
