@@ -7,32 +7,26 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import android.Manifest;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-
 import it.unimi.maledettatreest.controller.CommunicationController;
-import it.unimi.maledettatreest.model.Line;
-import it.unimi.maledettatreest.model.User;
+import it.unimi.maledettatreest.model.LinesModel;
+import it.unimi.maledettatreest.model.UsersModel;
 
 public class MapsFragment extends Fragment{
 
@@ -40,16 +34,18 @@ public class MapsFragment extends Fragment{
     private final static String MESSAGE = "Allow us to show your current position on map. However, this isn't required, so it's up to you";
 
     private CommunicationController cc;
-    private SharedPreferences prefs;
     private GoogleMap map;
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private UsersModel um;
+    private LinesModel lm;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         cc = CommunicationController.getInstance(requireContext());
-        prefs = requireContext().getSharedPreferences(MainActivity.APP_PREFS, 0);
+        um = UsersModel.getInstance(requireContext());
+        lm = LinesModel.getInstance(requireContext());
 
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -75,8 +71,8 @@ public class MapsFragment extends Fragment{
                 map.setMinZoomPreference(12);
                 map.moveCamera(CameraUpdateFactory.zoomTo(map.getMinZoomLevel()));
                 map.moveCamera(CameraUpdateFactory.newLatLng(unimi));
-                cc.getStations(prefs.getString(User.SID,MainActivity.DOESNT_EXIST),
-                        prefs.getString(Line.DID,MainActivity.DOESNT_EXIST),
+                cc.getStations(um.getSessionUser().getSid(),
+                        lm.getSelectedDir().getDid(),
                         this::handleGetStationsResponse,
                         error -> cc.handleVolleyError(error,requireContext(),TAG));
             });

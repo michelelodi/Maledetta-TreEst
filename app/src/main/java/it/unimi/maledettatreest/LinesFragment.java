@@ -8,10 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +20,7 @@ import it.unimi.maledettatreest.controller.LinesAdapter;
 import it.unimi.maledettatreest.model.Line;
 import it.unimi.maledettatreest.model.LinesModel;
 import it.unimi.maledettatreest.model.User;
+import it.unimi.maledettatreest.model.UsersModel;
 
 public class LinesFragment extends Fragment {
 
@@ -34,6 +33,8 @@ public class LinesFragment extends Fragment {
     private LinesAdapter adapter;
     private CommunicationController cc;
     private SharedPreferences prefs;
+    private UsersModel um;
+    private LinesModel lm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,6 +42,7 @@ public class LinesFragment extends Fragment {
         context = requireContext();
         adapter = new LinesAdapter(requireActivity(), context);
         cc = CommunicationController.getInstance(context);
+        lm = LinesModel.getInstance(context);
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
 
         return inflater.inflate(R.layout.fragment_lines, container, false);
@@ -53,8 +55,9 @@ public class LinesFragment extends Fragment {
         if(!prefs.contains(User.SID)){
             cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG));
         }else {
-            if (LinesModel.getInstance().getSize() == 0)
-                cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), this::handleGetLinesResponse,
+            um = UsersModel.getInstance(context);
+            if (lm.getSize() == 0)
+                cc.getLines(um.getSessionUser().getSid(), this::handleGetLinesResponse,
                         error -> cc.handleVolleyError(error,context,TAG));
         }
 
@@ -67,9 +70,7 @@ public class LinesFragment extends Fragment {
     private void handleGetLinesResponse(JSONObject response) {
         try {
             for(int i = 0; i < response.getJSONArray("lines").length(); i++)
-                LinesModel.getInstance()
-                        .addLine(new Line(((JSONObject) response.getJSONArray("lines")
-                                                                                        .get(i))));
+                lm.addLine(new Line(((JSONObject) response.getJSONArray("lines").get(i))));
 
             adapter.notifyDataSetChanged();
         } catch (JSONException e) { e.printStackTrace(); }
@@ -78,6 +79,7 @@ public class LinesFragment extends Fragment {
     private void registrationResponse(JSONObject response) {
         try {
             prefs.edit().putString(User.SID, response.get(User.SID).toString()).apply();
+            um = UsersModel.getInstance(context);
         }
         catch (JSONException e) {
             e.printStackTrace();
@@ -88,7 +90,7 @@ public class LinesFragment extends Fragment {
                                                             cc.handleVolleyError(error,context,TAG)))
                     .create().show();
         }
-        cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), this::handleGetLinesResponse,
+        cc.getLines(um.getSessionUser().getSid(), this::handleGetLinesResponse,
                 error -> cc.handleVolleyError(error,context,TAG));
     }
 }

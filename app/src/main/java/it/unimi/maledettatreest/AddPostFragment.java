@@ -1,6 +1,5 @@
 package it.unimi.maledettatreest;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,21 +12,23 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.controller.CommunicationController;
-import it.unimi.maledettatreest.model.Line;
-import it.unimi.maledettatreest.model.User;
+import it.unimi.maledettatreest.model.LinesModel;
+import it.unimi.maledettatreest.model.UsersModel;
 
 public class AddPostFragment extends Fragment {
 
     private final static String TAG = MainActivity.TAG_BASE + "AddPostFragment";
 
     private CommunicationController cc;
-    private SharedPreferences prefs;
+    private LinesModel lm;
+    private UsersModel um;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         cc = CommunicationController.getInstance(requireContext());
-        prefs = requireContext().getSharedPreferences(MainActivity.APP_PREFS,0);
+        um = UsersModel.getInstance(requireContext());
+        lm = LinesModel.getInstance(requireContext());
         return inflater.inflate(R.layout.fragment_add_post, container, false);
     }
 
@@ -75,8 +76,7 @@ public class AddPostFragment extends Fragment {
             }
 
             if(check)
-                cc.addPost(prefs.getString(User.SID, MainActivity.DOESNT_EXIST),
-                        prefs.getString(Line.DID, MainActivity.DOESNT_EXIST),
+                cc.addPost(um.getSessionUser().getSid(), lm.getSelectedDir().getDid(),
                         delay, status, comment, this::handleAddPostResponse,
                         error -> cc.handleVolleyError(error,requireContext(),TAG));
         });

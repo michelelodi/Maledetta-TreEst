@@ -1,5 +1,6 @@
 package it.unimi.maledettatreest.model;
 
+import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,5 +38,17 @@ public class User {
 
     public String getPicture() {
         return picture;
+    }
+
+    public void setUid(@NonNull String uid){
+        this.uid = uid;
+    }
+
+    public void setPicture(String picture){
+        this.picture = picture;
+    }
+
+    public void setPversion(String pversion){
+        this.pversion = pversion;
     }
 }

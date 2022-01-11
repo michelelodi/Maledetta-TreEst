@@ -4,40 +4,41 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import it.unimi.maledettatreest.MainActivity;
 
 public class Line {
 
-    public static final String DID = "did";
     public static final String LNAME = "lname";
-    public static final String REVERSE_DID = "reverseDid";
-    public static final String REVERSE_SNAME = "reverseSname";
-    public static final String SNAME = "sname";
     private static final String TERMINUS_1 = "terminus1";
     private static final String TERMINUS_2 = "terminus2";
 
     private ArrayList<Station> stations;
     private String name;
-    private HashMap<String,HashMap<String,String>> termini;
+    private HashMap<String,Direction> termini;
 
     public Line(JSONObject line){
         stations = null;
 
         try {
-            name = line.getJSONObject(TERMINUS_1).getString(SNAME) + " - " + line.getJSONObject(TERMINUS_2).getString(SNAME);
+            name = line.getJSONObject(TERMINUS_1).getString(Direction.SNAME) +
+                    " - " + line.getJSONObject(TERMINUS_2).getString(Direction.SNAME);
 
-            HashMap<String,String> terminus1 = new HashMap<>();
-            terminus1.put(SNAME,line.getJSONObject(TERMINUS_1).getString(SNAME));
-            terminus1.put(DID,line.getJSONObject(TERMINUS_1).getString(DID));
-            terminus1.put(LNAME,name);
-            terminus1.put(REVERSE_DID,line.getJSONObject(TERMINUS_2).getString(DID));
-            terminus1.put(REVERSE_SNAME,line.getJSONObject(TERMINUS_2).getString(SNAME));
-            HashMap<String,String> terminus2 = new HashMap<>();
-            terminus2.put(SNAME,line.getJSONObject(TERMINUS_2).getString(SNAME));
-            terminus2.put(DID,line.getJSONObject(TERMINUS_2).getString(DID));
-            terminus2.put(LNAME,name);
-            terminus2.put(REVERSE_DID,line.getJSONObject(TERMINUS_1).getString(DID));
-            terminus2.put(REVERSE_SNAME,line.getJSONObject(TERMINUS_1).getString(SNAME));
+            Direction terminus1 = new Direction(name, line.getJSONObject(TERMINUS_1)
+                                                                    .getString(Direction.DID),
+                                                        line.getJSONObject(TERMINUS_1)
+                                                                .getString(Direction.SNAME),
+                                                        line.getJSONObject(TERMINUS_2)
+                                                                .getString(Direction.DID),
+                                                        line.getJSONObject(TERMINUS_2)
+                                                                .getString(Direction.SNAME));
+
+            Direction terminus2 = new Direction(name, line.getJSONObject(TERMINUS_2)
+                                                        .getString(Direction.DID),
+                                                        line.getJSONObject(TERMINUS_2)
+                                                                .getString(Direction.SNAME),
+                                                        line.getJSONObject(TERMINUS_1)
+                                                                .getString(Direction.DID),
+                                                        line.getJSONObject(TERMINUS_1)
+                                                                .getString(Direction.SNAME));
 
             termini = new HashMap<>();
             termini.put(TERMINUS_1,terminus1);
@@ -53,7 +54,7 @@ public class Line {
         return name;
     }
 
-    public HashMap<String, String> getTerminus(int terminus) {
+    public Direction getTerminus(int terminus) {
         if(terminus == 1) return termini.get(TERMINUS_1);
         if(terminus == 2) return termini.get(TERMINUS_2);
         return null;

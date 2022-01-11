@@ -31,8 +31,8 @@ public class LineViewHolder extends RecyclerView.ViewHolder {
     }
     public void updateContent(Line line){
         lineNameTV.setText(line.getName());
-        terminus1B.setText(line.getTerminus(1).get(Line.SNAME));
-        terminus2B.setText(line.getTerminus(2).get(Line.SNAME));
+        terminus1B.setText(line.getTerminus(1).getSname());
+        terminus2B.setText(line.getTerminus(2).getSname());
         terminus1B.setOnClickListener(new EditLineDirectionClickListener(activity, context, line.getTerminus(1)));
         terminus2B.setOnClickListener(new EditLineDirectionClickListener(activity, context, line.getTerminus(2)));
     }

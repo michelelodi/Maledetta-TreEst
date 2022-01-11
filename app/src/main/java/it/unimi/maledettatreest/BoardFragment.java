@@ -1,4 +1,5 @@
 package it.unimi.maledettatreest;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,7 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.controller.PostsAdapter;
-import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.Direction;
+import it.unimi.maledettatreest.model.LinesModel;
 import it.unimi.maledettatreest.model.MaledettaTreEstDB;
 import it.unimi.maledettatreest.model.Post;
 import it.unimi.maledettatreest.model.User;
@@ -38,16 +40,21 @@ public class BoardFragment extends Fragment {
     private String sid;
     private View view;
     private PostsAdapter adapter;
-    private static LinkedList<Post> posts;
+    private LinkedList<Post> posts;
     private Looper secondaryThreadLooper;
     private MaledettaTreEstDB db;
+    private UsersModel um;
+    private LinesModel lm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = requireContext();
         cc = CommunicationController.getInstance(context);
+        um = UsersModel.getInstance(context);
+        lm = LinesModel.getInstance(context);
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
-        sid = prefs.getString(User.SID, MainActivity.DOESNT_EXIST);
+
+        sid = um.getSessionUser().getSid();
 
         HandlerThread handlerThread = new HandlerThread("BoardHandlerThread");
         handlerThread.start();
@@ -64,7 +71,8 @@ public class BoardFragment extends Fragment {
         this.view = view;
         listView = view.findViewById(R.id.postsRecyclerView);
         listView.setLayoutManager(new LinearLayoutManager(context));
-        cc.getPosts(sid, prefs.getString(Line.DID,MainActivity.DOESNT_EXIST),
+
+        cc.getPosts(sid, lm.getSelectedDir().getDid(),
                 this::handleGetPostsResponse, error->cc.handleVolleyError(error,context,TAG));
         setupView();
     }
@@ -75,19 +83,20 @@ public class BoardFragment extends Fragment {
 
         try {
             ((TextView)view.findViewById(R.id.snameBoardFragmentTV))
-                    .setText(prefs.getString(Line.SNAME, MainActivity.DOESNT_EXIST));
+                    .setText(lm.getSelectedDir().getSname());
             ((TextView)view.findViewById(R.id.didBoardFragmentTV))
-                    .setText(prefs.getString(Line.DID, MainActivity.DOESNT_EXIST));
+                    .setText(lm.getSelectedDir().getDid());
 
             posts = Post.getPostsFromJSONArray(response.getJSONArray("posts"));
             adapter =  new PostsAdapter(context,posts);
+            listView.setAdapter(adapter);
 
             for (Post p : posts)
                 if(Integer.parseInt(p.getPversion()) > 0)
                     missingUids.put(p.getAuthor(), p.getPversion());
 
             for (String uid : new HashMap<>(missingUids).keySet()) {
-                User user = UsersModel.getInstance().getUserByUid(uid);
+                User user = um.getUserByUid(uid);
                 if(user != null && user.getPversion().equals(missingUids.get(uid))) {
                    foundUids.put(uid,user.getPicture());
                    missingUids.remove(uid);
@@ -108,7 +117,7 @@ public class BoardFragment extends Fragment {
                             String base64Pic = db.userPicturesDao().getPicture(uid);
                             String storedPversion = db.userPicturesDao().getVersion(uid);
                             if (base64Pic != null && storedPversion.equals(missingUids.get(uid))) {
-                                UsersModel.getInstance().addUser(new User(uid, storedPversion, base64Pic));
+                                um.addUser(new User(uid, storedPversion, base64Pic));
                                 requireActivity().runOnUiThread(() -> {
                                     for(int i = 0; i < posts.size(); i++) {
                                         Post updatedPost = posts.get(i);
@@ -128,7 +137,7 @@ public class BoardFragment extends Fragment {
                 );
             }
 
-            listView.swapAdapter(adapter,true);
+
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
@@ -143,7 +152,7 @@ public class BoardFragment extends Fragment {
                 }
             }
 
-            UsersModel.getInstance().addUser(new User(response));
+            um.addUser(new User(response));
 
             new Handler(secondaryThreadLooper).post(() -> db.storePicture(response));
         } catch (JSONException e) { e.printStackTrace(); }
@@ -151,18 +160,22 @@ public class BoardFragment extends Fragment {
 
     private void setupView(){
         ((TextView)view.findViewById(R.id.lnameBoardFragmentTV))
-                .setText(prefs.getString(Line.LNAME, MainActivity.DOESNT_EXIST));
+                .setText(lm.getSelectedDir().getLname());
 
         view.findViewById(R.id.revertB).setOnClickListener(v-> {
-            String did = prefs.getString(Line.DID, MainActivity.DOESNT_EXIST);
-            String sname = prefs.getString(Line.SNAME, MainActivity.DOESNT_EXIST);
 
-            prefs.edit().putString(Line.DID,prefs.getString(Line.REVERSE_DID,MainActivity.DOESNT_EXIST))
-                    .putString(Line.SNAME,prefs.getString(Line.REVERSE_SNAME,MainActivity.DOESNT_EXIST))
-                    .putString(Line.REVERSE_SNAME,sname)
-                    .putString(Line.REVERSE_DID, did).apply();
+            prefs.edit().putString(Direction.DID,lm.getSelectedDir().getReverseDid())
+                    .putString(Direction.SNAME,lm.getSelectedDir().getReverseSname())
+                    .putString(Direction.REVERSE_SNAME,lm.getSelectedDir().getSname())
+                    .putString(Direction.REVERSE_DID, lm.getSelectedDir().getDid()).apply();
 
-            cc.getPosts(sid, prefs.getString(Line.DID,MainActivity.DOESNT_EXIST),
+            lm.setSelectedDir(new Direction(lm.getSelectedDir().getLname(),
+                                            lm.getSelectedDir().getReverseDid(),
+                                            lm.getSelectedDir().getReverseSname(),
+                                            lm.getSelectedDir().getDid(),
+                                            lm.getSelectedDir().getSname() ));
+
+            cc.getPosts(sid, lm.getSelectedDir().getDid(),
                     this::handleGetPostsResponse, error -> cc.handleVolleyError(error, context, TAG));
         });
 

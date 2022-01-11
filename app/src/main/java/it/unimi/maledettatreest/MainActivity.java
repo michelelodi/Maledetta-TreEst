@@ -10,7 +10,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.Objects;
-import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.Direction;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = navHostFragment.getNavController();
         NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.nav_graph);
 
-        if (getSharedPreferences(APP_PREFS,0).contains(Line.DID))
+        if (getSharedPreferences(APP_PREFS,0).contains(Direction.DID))
             navGraph.setStartDestination(R.id.boardFragment);
         else
             navGraph.setStartDestination(R.id.linesFragment);

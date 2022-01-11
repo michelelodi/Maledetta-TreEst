@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import it.unimi.maledettatreest.LineViewHolder;
-import it.unimi.maledettatreest.MainActivity;
 import it.unimi.maledettatreest.R;
 import it.unimi.maledettatreest.model.LinesModel;
 
@@ -32,11 +31,11 @@ public class LinesAdapter extends RecyclerView.Adapter<LineViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull LineViewHolder holder, int position) {
-        holder.updateContent(LinesModel.getInstance().get(position));
+        holder.updateContent(LinesModel.getInstance(context).get(position));
     }
 
     @Override
     public int getItemCount() {
-        return LinesModel.getInstance().getSize();
+        return LinesModel.getInstance(context).getSize();
     }
 }

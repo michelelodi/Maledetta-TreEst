@@ -17,7 +17,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.MainActivity;
-import it.unimi.maledettatreest.model.Line;
+import it.unimi.maledettatreest.model.Direction;
 import it.unimi.maledettatreest.model.Post;
 import it.unimi.maledettatreest.model.User;
 
@@ -27,6 +27,7 @@ public class CommunicationController {
 
     private static CommunicationController instance;
     private final RequestQueue requestQueue;
+
 
     private CommunicationController(Context c) {
         this.requestQueue = Volley.newRequestQueue(c);
@@ -40,7 +41,7 @@ public class CommunicationController {
     public void addPost(String sid, String did, @Nullable String delay, @Nullable String status,
                         @Nullable String comment, Response.Listener<JSONObject> rL, Response.ErrorListener eL){
         try {
-            baseRequest("addPost", new JSONObject().put(User.SID, sid).put(Line.DID, did)
+            baseRequest("addPost", new JSONObject().put(User.SID, sid).put(Direction.DID, did)
                                                         .put(Post.DELAY, delay)
                                                         .put(Post.STATUS, status)
                                                         .put(Post.COMMENT, comment), rL, eL);
@@ -66,7 +67,7 @@ public class CommunicationController {
 
     public void getPosts(String sid, String did, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         try {
-            baseRequest("getPosts", new JSONObject().put(User.SID,sid).put(Line.DID,did),rL,eL);
+            baseRequest("getPosts", new JSONObject().put(User.SID,sid).put(Direction.DID,did),rL,eL);
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
@@ -78,7 +79,7 @@ public class CommunicationController {
 
     public void getStations(String sid, String did, Response.Listener<JSONObject> rL, Response.ErrorListener eL) {
         try {
-            baseRequest("getStations", new JSONObject().put(User.SID,sid).put(Line.DID,did),rL,eL);
+            baseRequest("getStations", new JSONObject().put(User.SID,sid).put(Direction.DID,did),rL,eL);
         } catch (JSONException e) { e.printStackTrace(); }
     }
 

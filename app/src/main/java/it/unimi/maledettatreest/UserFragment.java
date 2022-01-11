@@ -25,9 +25,10 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
-import java.util.Iterator;
 import it.unimi.maledettatreest.controller.CommunicationController;
+import it.unimi.maledettatreest.model.SessionUser;
 import it.unimi.maledettatreest.model.User;
+import it.unimi.maledettatreest.model.UsersModel;
 import it.unimi.maledettatreest.services.ImageManager;
 
 public class UserFragment extends Fragment implements ActivityResultCallback<Uri> {
@@ -38,6 +39,7 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
     private Context context;
     private SharedPreferences prefs;
     private View view;
+    private UsersModel um;
     private ActivityResultLauncher<String> getProfilePicture;
 
     @Override
@@ -46,6 +48,7 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
         getProfilePicture = registerForActivityResult(new ActivityResultContracts.GetContent(), this);
         cc = CommunicationController.getInstance(context);
+        um = UsersModel.getInstance(context);
         return inflater.inflate(R.layout.fragment_user, container, false);
     }
 
@@ -56,18 +59,34 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
         this.view = view;
 
         if(!prefs.contains(User.NAME))
-            cc.getProfile(prefs.getString(User.SID, MainActivity.DOESNT_EXIST),
-                    this::handleGetProfileResponse, error -> cc.handleVolleyError(error, context, TAG));
-        else setupView();
+            cc.getProfile(um.getSessionUser().getSid(), this::handleGetProfileResponse,
+                            error -> cc.handleVolleyError(error, context, TAG));
+        else {
+            SessionUser sessionUser = um.getSessionUser();
+            sessionUser.setUid(um.getSessionUser().getUid());
+            sessionUser.setName(um.getSessionUser().getName());
+            sessionUser.setPicture(um.getSessionUser().getPicture());
+            sessionUser.setPversion(um.getSessionUser().getPversion());
+
+            um.setSessionUser(sessionUser);
+            setupView();
+        }
     }
 
     private void handleGetProfileResponse(JSONObject response) {
         try {
-            Iterator<String> keys = response.keys();
-            while(keys.hasNext()){
-                String key = keys.next();
-                prefs.edit().putString(key, response.get(key).toString()).apply();
-            }
+            prefs.edit().putString(User.UID, response.get(User.UID).toString()).apply();
+            prefs.edit().putString(User.NAME, response.get(User.NAME).toString()).apply();
+            prefs.edit().putString(User.PICTURE, response.get(User.PICTURE).toString()).apply();
+            prefs.edit().putString(User.PVERSION, response.get(User.PVERSION).toString()).apply();
+
+            SessionUser sessionUser = um.getSessionUser();
+            sessionUser.setPversion(response.get(User.PVERSION).toString());
+            sessionUser.setUid(response.get(User.UID).toString());
+            sessionUser.setPicture(response.get(User.PICTURE).toString());
+            sessionUser.setName(response.get(User.NAME).toString());
+
+            um.setSessionUser(sessionUser);
         } catch (JSONException e) { e.printStackTrace(); }
 
         setupView();
@@ -90,17 +109,21 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
                 ((ImageView)view.findViewById(R.id.profilePictureIV)).setImageBitmap(bitmap);
 
                 prefs.edit().putString(User.PICTURE,picture).putString(User.PVERSION,
-                        String.valueOf(Integer.parseInt(prefs.getString
-                                (User.PVERSION,MainActivity.DOESNT_EXIST))+1)).apply();
+                        String.valueOf(Integer.parseInt(um.getSessionUser().getPversion())+1)).apply();
 
-                cc.setProfile(prefs.getString(User.SID, MainActivity.DOESNT_EXIST), null, picture,
+                SessionUser sessionUser = um.getSessionUser();
+                sessionUser.setPicture(picture);
+                um.setSessionUser(sessionUser);
+
+                cc.setProfile(um.getSessionUser().getSid(), null, picture,
                         this::handleSetProfileResponse, e->cc.handleVolleyError(e,context,TAG));
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
 
     private void hideKeyboard() {
-        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity()
+                                                    .getSystemService(Activity.INPUT_METHOD_SERVICE);
         if(inputMethodManager.isAcceptingText())
             inputMethodManager.hideSoftInputFromWindow(requireActivity().getCurrentFocus()
                                                                 .getWindowToken(), 0);
@@ -111,9 +134,9 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
         EditText profileName = view.findViewById(R.id.profileNameET);
         Button editName = view.findViewById(R.id.editNameB);
         Button editPicture = view.findViewById(R.id.editPictureB);
-        String picture = prefs.getString(User.PICTURE, MainActivity.DOESNT_EXIST);
+        String picture = um.getSessionUser().getPicture();
 
-        profileName.setText(prefs.getString(User.NAME, MainActivity.DOESNT_EXIST));
+        profileName.setText(um.getSessionUser().getName());
 
         if(picture.equals("null"))
             profilePicture.setImageResource(R.drawable.blank_profile_picture);
@@ -134,8 +157,11 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
                         .setPositiveButton(MainActivity.OK, null).create().show();
             else {
                 prefs.edit().putString(User.NAME,name).apply();
+                SessionUser sessionUser = um.getSessionUser();
+                sessionUser.setName(name);
+                um.setSessionUser(sessionUser);
                 hideKeyboard();
-                cc.setProfile(prefs.getString(User.SID, MainActivity.DOESNT_EXIST), name, null,
+                cc.setProfile(um.getSessionUser().getSid(), name, null,
                         this::handleSetProfileResponse, e-> cc.handleVolleyError(e, context, TAG));
             } });
 

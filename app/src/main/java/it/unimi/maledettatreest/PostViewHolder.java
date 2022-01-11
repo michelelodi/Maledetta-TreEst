@@ -1,8 +1,6 @@
 package it.unimi.maledettatreest;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -10,12 +8,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import org.json.JSONObject;
-
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.model.Post;
-import it.unimi.maledettatreest.model.User;
+import it.unimi.maledettatreest.model.UsersModel;
 import it.unimi.maledettatreest.services.ImageManager;
 
 public class PostViewHolder extends RecyclerView.ViewHolder{
@@ -28,7 +24,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
     private final LinearLayout singlePostLinearLayout;
     private final Button followB;
     private final CommunicationController cc;
-    private final SharedPreferences prefs;
+    private UsersModel um;
     private final Context context;
     private boolean followingAuthor;
 
@@ -36,7 +32,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
         super(itemView);
 
         this.context = context;
-        prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
+        um = UsersModel.getInstance(context);
         cc = CommunicationController.getInstance(context);
 
         postAuthorTV = itemView.findViewById(R.id.postAuthorTV);
@@ -88,11 +84,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
 
             followB.setOnClickListener(view -> {
                 if(followingAuthor) {
-                    cc.unfollow(prefs.getString(User.SID, MainActivity.DOESNT_EXIST), post.getAuthor(),
+                    cc.unfollow(um.getSessionUser().getSid(), post.getAuthor(),
                             this::handleUnfollowResponse, error -> cc.handleVolleyError(error, context, TAG));
                 }
                 else
-                    cc.follow(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), post.getAuthor(),
+                    cc.follow(um.getSessionUser().getSid(), post.getAuthor(),
                             this::handleFollowResponse, error -> cc.handleVolleyError(error, context, TAG));
             });
     }
