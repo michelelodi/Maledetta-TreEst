@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.LinkedList;
 import it.unimi.maledettatreest.controller.CommunicationController;
-import it.unimi.maledettatreest.controller.EditLineDirectionClickListener;
 import it.unimi.maledettatreest.controller.PostsAdapter;
 import it.unimi.maledettatreest.model.Line;
 import it.unimi.maledettatreest.model.MaledettaTreEstDB;
@@ -43,12 +42,8 @@ public class BoardFragment extends Fragment {
     private Looper secondaryThreadLooper;
     private MaledettaTreEstDB db;
 
-    public BoardFragment() {}
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = requireContext();
         cc = CommunicationController.getInstance(context);
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
@@ -59,10 +54,7 @@ public class BoardFragment extends Fragment {
         secondaryThreadLooper = handlerThread.getLooper();
 
         db = MaledettaTreEstDB.getDatabase(context);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_board, container, false);
     }
 
@@ -161,10 +153,6 @@ public class BoardFragment extends Fragment {
         ((TextView)view.findViewById(R.id.lnameBoardFragmentTV))
                 .setText(prefs.getString(Line.LNAME, MainActivity.DOESNT_EXIST));
 
-        view.findViewById(R.id.backToHomeB)
-                .setOnClickListener(new EditLineDirectionClickListener(requireActivity(),
-                                                                        context, null));
-
         view.findViewById(R.id.revertB).setOnClickListener(v-> {
             String did = prefs.getString(Line.DID, MainActivity.DOESNT_EXIST);
             String sname = prefs.getString(Line.SNAME, MainActivity.DOESNT_EXIST);
@@ -178,9 +166,12 @@ public class BoardFragment extends Fragment {
                     this::handleGetPostsResponse, error -> cc.handleVolleyError(error, context, TAG));
         });
 
-        view.findViewById(R.id.addPostB).setOnClickListener(v->{
+        view.findViewById(R.id.addPostB).setOnClickListener(v->
             Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                    .navigate(BoardFragmentDirections.actionBoardFragmentToAddPostFragment());
-        });
+                    .navigate(BoardFragmentDirections.actionBoardFragmentToAddPostFragment()));
+
+        view.findViewById(R.id.detailsB).setOnClickListener(v->
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                    .navigate(BoardFragmentDirections.actionBoardFragmentToMapsFragment()));
     }
 }

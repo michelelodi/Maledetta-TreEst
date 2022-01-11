@@ -23,13 +23,6 @@ public class AddPostFragment extends Fragment {
     private CommunicationController cc;
     private SharedPreferences prefs;
 
-    public AddPostFragment() { }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

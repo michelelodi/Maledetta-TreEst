@@ -35,20 +35,14 @@ public class LinesFragment extends Fragment {
     private CommunicationController cc;
     private SharedPreferences prefs;
 
-    public LinesFragment() {}
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         context = requireContext();
         adapter = new LinesAdapter(requireActivity(), context);
         cc = CommunicationController.getInstance(context);
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_lines, container, false);
     }
 
@@ -59,9 +53,7 @@ public class LinesFragment extends Fragment {
         if(!prefs.contains(User.SID)){
             cc.register(this::registrationResponse, error -> cc.handleVolleyError(error,context,TAG));
         }else {
-            if (prefs.contains(Line.DID))
-                Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_linesFragment_to_boardFragment);
-            else if (LinesModel.getInstance().getSize() == 0)
+            if (LinesModel.getInstance().getSize() == 0)
                 cc.getLines(prefs.getString(User.SID,MainActivity.DOESNT_EXIST), this::handleGetLinesResponse,
                         error -> cc.handleVolleyError(error,context,TAG));
         }

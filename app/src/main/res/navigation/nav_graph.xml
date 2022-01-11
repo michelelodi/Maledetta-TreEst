@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_userFragment_to_addPostFragment"
             app:destination="@id/addPostFragment" />
+        <action
+            android:id="@+id/action_userFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
     </fragment>
     <fragment
         android:id="@+id/linesFragment"
@@ -46,6 +49,9 @@
         <action
             android:id="@+id/action_boardFragment_to_addPostFragment"
             app:destination="@id/addPostFragment" />
+        <action
+            android:id="@+id/action_boardFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addPostFragment"
@@ -58,8 +64,17 @@
         <action
             android:id="@+id/action_addPostFragment_to_linesFragment"
             app:destination="@id/linesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="it.unimi.maledettatreest.MapsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" >
         <action
-            android:id="@+id/action_addPostFragment_to_boardFragment"
-            app:destination="@id/boardFragment" />
+            android:id="@+id/action_mapsFragment_to_userFragment"
+            app:destination="@id/userFragment" />
+        <action
+            android:id="@+id/action_mapsFragment_to_linesFragment"
+            app:destination="@id/linesFragment" />
     </fragment>
 </navigation>

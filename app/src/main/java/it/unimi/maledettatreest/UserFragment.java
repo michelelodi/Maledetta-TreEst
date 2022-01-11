@@ -40,20 +40,12 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
     private View view;
     private ActivityResultLauncher<String> getProfilePicture;
 
-    public UserFragment() { }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = requireContext();
         prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
         getProfilePicture = registerForActivityResult(new ActivityResultContracts.GetContent(), this);
         cc = CommunicationController.getInstance(context);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_user, container, false);
     }
 

@@ -2,9 +2,11 @@ package it.unimi.maledettatreest;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.Objects;
@@ -24,7 +26,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.nav_graph);
+
+        if (getSharedPreferences(APP_PREFS,0).contains(Line.DID))
+            navGraph.setStartDestination(R.id.boardFragment);
+        else
+            navGraph.setStartDestination(R.id.linesFragment);
+
+        navController.setGraph(navGraph);
 
         ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item -> {
             Class<? extends Fragment> currentFragmentClass = Objects.requireNonNull(navHostFragment)
@@ -32,14 +43,8 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.linesBottomNav:
                     if(currentFragmentClass == BoardFragment.class) {
-                        SharedPreferences prefs = getSharedPreferences(MainActivity.APP_PREFS,0);
-                        prefs.edit().remove(Line.DID)
-                                .remove(Line.SNAME)
-                                .remove(Line.LNAME)
-                                .remove(Line.REVERSE_DID)
-                                .remove(Line.REVERSE_SNAME).apply();
-
-                        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(BoardFragmentDirections.actionBoardFragmentToLinesFragment());
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(BoardFragmentDirections.actionBoardFragmentToLinesFragment());
                     }
                     else if(currentFragmentClass == UserFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
@@ -47,17 +52,23 @@ public class MainActivity extends AppCompatActivity {
                     else if(currentFragmentClass == AddPostFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(AddPostFragmentDirections.actionAddPostFragmentToLinesFragment());
+                    else if(currentFragmentClass == MapsFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(MapsFragmentDirections.actionMapsFragmentToLinesFragment());
                     return true;
                 case R.id.userBottomNav:
                     if(currentFragmentClass == BoardFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(BoardFragmentDirections.actionBoardFragmentToUserFragment());
-                    else if(currentFragmentClass == UserFragment.class)
+                    else if(currentFragmentClass == LinesFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(LinesFragmentDirections.actionLinesFragmentToUserFragment());
                     else if(currentFragmentClass == AddPostFragment.class)
                         Navigation.findNavController(this, R.id.nav_host_fragment)
                                 .navigate(AddPostFragmentDirections.actionAddPostFragmentToUserFragment());
+                    else if(currentFragmentClass == MapsFragment.class)
+                        Navigation.findNavController(this, R.id.nav_host_fragment)
+                                .navigate(MapsFragmentDirections.actionMapsFragmentToUserFragment());
                     return true;
                 default:
                     return false;

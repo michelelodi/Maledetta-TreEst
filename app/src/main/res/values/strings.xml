@@ -8,9 +8,9 @@
     <string name="edit_name_button">Edit Name</string>
 
     <!-- BoardFragment -->
-    <string name="back_to_home_button">BACK</string>
     <string name="revert_button">REVERT</string>
     <string name="add_post_button">ADD POST</string>
+    <string name="details_button">DETAILS</string>
 
     <!-- BottomNav -->
     <string name="userBottomNavText">User</string>

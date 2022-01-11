@@ -30,6 +30,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
     private final CommunicationController cc;
     private final SharedPreferences prefs;
     private final Context context;
+    private boolean followingAuthor;
 
     public PostViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
@@ -56,6 +57,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
     public void updateContent(Post post){
             String author = post.getAuthor();
             String pversion = post.getPversion();
+            followingAuthor = Boolean.parseBoolean(post.getFollowingAuthor());
 
             postAuthorTV.setText(author);
             postAuthorNameTV.setText(post.getAuthorName());
@@ -65,19 +67,27 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
 
             if(post.getComment() != null)postCommentTV.setText(post.getComment());
             else singlePostLinearLayout.removeView(postCommentTV);
-            if(post.getStatus() != null)postStatusTV.setText(post.getStatus());
+
+            if(post.getStatus() != null &&
+                Integer.parseInt(post.getStatus()) >= 0 &&
+                Integer.parseInt(post.getStatus()) < 3)
+                    postStatusTV.setText(post.getStatus());
             else singlePostLinearLayout.removeView(postStatusTV);
-            if(post.getDelay() != null)postDelayTV.setText(post.getDelay());
+
+            if(post.getDelay() != null &&
+                Integer.parseInt(post.getDelay()) >= 0 &&
+                Integer.parseInt(post.getDelay()) < 4)
+                    postDelayTV.setText(post.getDelay());
             else singlePostLinearLayout.removeView(postDelayTV);
 
             if(post.getPicture() != null) userPictureIV.setImageBitmap(ImageManager.base64ToBitmap(post.getPicture()));
             else userPictureIV.setImageResource(R.drawable.blank_profile_picture);
 
-            if(Boolean.parseBoolean(post.getFollowingAuthor())) followB.setText(R.string.unfollow);
+            if(followingAuthor) followB.setText(R.string.unfollow);
             else followB.setText(R.string.follow);
 
             followB.setOnClickListener(view -> {
-                if(Boolean.parseBoolean(post.getFollowingAuthor())) {
+                if(followingAuthor) {
                     cc.unfollow(prefs.getString(User.SID, MainActivity.DOESNT_EXIST), post.getAuthor(),
                             this::handleUnfollowResponse, error -> cc.handleVolleyError(error, context, TAG));
                 }
@@ -89,9 +99,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
 
     private void handleFollowResponse(JSONObject jsonObject) {
         followB.setText(R.string.unfollow);
+        followingAuthor = !followingAuthor;
     }
 
     private void handleUnfollowResponse(JSONObject jsonObject) {
         followB.setText(R.string.follow);
+        followingAuthor = !followingAuthor;
     }
 }
