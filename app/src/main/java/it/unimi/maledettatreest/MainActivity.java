@@ -7,7 +7,10 @@ import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
+import android.view.inputmethod.InputMethodManager;
+
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.Objects;
 import it.unimi.maledettatreest.model.Direction;

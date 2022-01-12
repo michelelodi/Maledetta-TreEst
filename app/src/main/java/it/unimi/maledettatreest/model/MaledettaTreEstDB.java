@@ -38,4 +38,9 @@ public abstract class MaledettaTreEstDB extends RoomDatabase {
             }
         });
     }
+
+    public void storePicture(String uid, String picture, String pversion){
+        databaseWriteExecutor.execute(() ->
+                INSTANCE.userPicturesDao().insertPicture(new UserPictures(uid, picture, pversion)));
+    }
 }

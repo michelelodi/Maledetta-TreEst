@@ -2,6 +2,7 @@ package it.unimi.maledettatreest;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.model.Post;
+import it.unimi.maledettatreest.model.UsersModel;
 import it.unimi.maledettatreest.services.ImageManager;
 
 public class PostViewHolder extends RecyclerView.ViewHolder{
@@ -25,12 +27,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
     private final CommunicationController cc;
     private final Context context;
     private boolean followingAuthor;
+    private final UsersModel um;
 
     public PostViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
 
         this.context = context;
         cc = CommunicationController.getInstance(context);
+        um = UsersModel.getInstance(context);
 
         postAuthorTV = itemView.findViewById(R.id.postAuthorTV);
         postAuthorNameTV = itemView.findViewById(R.id.postAuthorNameTV);
@@ -76,18 +80,24 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
             if(post.getPicture() != null) userPictureIV.setImageBitmap(ImageManager.base64ToBitmap(post.getPicture()));
             else userPictureIV.setImageResource(R.drawable.blank_profile_picture);
 
-            if(followingAuthor) followB.setText(R.string.unfollow);
-            else followB.setText(R.string.follow);
+            if(!post.getAuthor().equals(um.getSessionUser().getUid())) {
+                followB.setVisibility(View.VISIBLE);
 
-            followB.setOnClickListener(view -> {
-                if(followingAuthor) {
-                    cc.unfollow(post.getAuthor(),
-                            this::handleUnfollowResponse, error -> cc.handleVolleyError(error, context, TAG));
-                }
-                else
-                    cc.follow(post.getAuthor(),
-                            this::handleFollowResponse, error -> cc.handleVolleyError(error, context, TAG));
-            });
+                if (followingAuthor) followB.setText(R.string.unfollow);
+                else followB.setText(R.string.follow);
+
+                followB.setOnClickListener(view -> {
+                    if (followingAuthor) {
+                        cc.unfollow(post.getAuthor(),
+                                this::handleUnfollowResponse, error -> cc.handleVolleyError(error, context, TAG));
+                    } else
+                        cc.follow(post.getAuthor(),
+                                this::handleFollowResponse, error -> cc.handleVolleyError(error, context, TAG));
+                });
+            }
+            else{
+                followB.setVisibility(View.GONE);
+            }
     }
 
     private void handleFollowResponse(JSONObject jsonObject) {

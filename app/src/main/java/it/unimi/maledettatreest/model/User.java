@@ -15,6 +15,7 @@ public class User {
     public static final String NAME = "name";
     public static final String PICTURE = "picture";
     public static final String PVERSION = "pversion";
+    public static final String HAS_PICTURE = "hasPicture";
     private static final String TAG = MainActivity.TAG_BASE + "User";
 
     private String uid, pversion, picture;
