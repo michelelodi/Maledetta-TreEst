@@ -17,7 +17,7 @@ public class LinesAdapter extends RecyclerView.Adapter<LineViewHolder>{
     private final Context context;
 
     public LinesAdapter(Activity activity, Context context){
-        this.inflater = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(context);
         this.activity = activity;
         this.context = context;
     }

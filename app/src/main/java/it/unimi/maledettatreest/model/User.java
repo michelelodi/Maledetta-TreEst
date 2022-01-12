@@ -1,8 +1,12 @@
 package it.unimi.maledettatreest.model;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import it.unimi.maledettatreest.MainActivity;
 
 public class User {
 
@@ -11,6 +15,7 @@ public class User {
     public static final String NAME = "name";
     public static final String PICTURE = "picture";
     public static final String PVERSION = "pversion";
+    private static final String TAG = MainActivity.TAG_BASE + "User";
 
     private String uid, pversion, picture;
 
@@ -25,7 +30,10 @@ public class User {
             uid = user.getString(UID);
             pversion = user.getString(PVERSION);
             picture = user.getString(PICTURE);
-        } catch (JSONException e) { e.printStackTrace(); }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        }
     }
 
     public String getUid() {

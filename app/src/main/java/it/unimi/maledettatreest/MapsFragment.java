@@ -11,6 +11,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.model.LinesModel;
-import it.unimi.maledettatreest.model.UsersModel;
 
 public class MapsFragment extends Fragment{
 
@@ -36,7 +36,6 @@ public class MapsFragment extends Fragment{
     private CommunicationController cc;
     private GoogleMap map;
     private ActivityResultLauncher<String> requestPermissionLauncher;
-    private UsersModel um;
     private LinesModel lm;
 
     @Nullable
@@ -44,7 +43,6 @@ public class MapsFragment extends Fragment{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         cc = CommunicationController.getInstance(requireContext());
-        um = UsersModel.getInstance(requireContext());
         lm = LinesModel.getInstance(requireContext());
 
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -71,10 +69,8 @@ public class MapsFragment extends Fragment{
                 map.setMinZoomPreference(12);
                 map.moveCamera(CameraUpdateFactory.zoomTo(map.getMinZoomLevel()));
                 map.moveCamera(CameraUpdateFactory.newLatLng(unimi));
-                cc.getStations(um.getSessionUser().getSid(),
-                        lm.getSelectedDir().getDid(),
-                        this::handleGetStationsResponse,
-                        error -> cc.handleVolleyError(error,requireContext(),TAG));
+                cc.getStations(lm.getSelectedDir().getDid(), this::handleGetStationsResponse,
+                        error -> cc.handleVolleyError(error, requireContext(), TAG));
             });
         }
     }
@@ -98,6 +94,7 @@ public class MapsFragment extends Fragment{
                                     .color(Color.rgb(0,127,255)));
         } catch (JSONException e) {
             e.printStackTrace();
+            Log.e(TAG, e.toString());
         }
     }
 

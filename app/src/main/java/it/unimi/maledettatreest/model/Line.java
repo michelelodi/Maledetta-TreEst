@@ -22,23 +22,17 @@ public class Line {
             name = line.getJSONObject(TERMINUS_1).getString(Direction.SNAME) +
                     " - " + line.getJSONObject(TERMINUS_2).getString(Direction.SNAME);
 
-            Direction terminus1 = new Direction(name, line.getJSONObject(TERMINUS_1)
-                                                                    .getString(Direction.DID),
-                                                        line.getJSONObject(TERMINUS_1)
-                                                                .getString(Direction.SNAME),
-                                                        line.getJSONObject(TERMINUS_2)
-                                                                .getString(Direction.DID),
-                                                        line.getJSONObject(TERMINUS_2)
-                                                                .getString(Direction.SNAME));
+            Direction terminus1 = new Direction(name,
+                                        line.getJSONObject(TERMINUS_1).getString(Direction.DID),
+                                        line.getJSONObject(TERMINUS_1).getString(Direction.SNAME),
+                                        line.getJSONObject(TERMINUS_2).getString(Direction.DID),
+                                        line.getJSONObject(TERMINUS_2).getString(Direction.SNAME));
 
-            Direction terminus2 = new Direction(name, line.getJSONObject(TERMINUS_2)
-                                                        .getString(Direction.DID),
-                                                        line.getJSONObject(TERMINUS_2)
-                                                                .getString(Direction.SNAME),
-                                                        line.getJSONObject(TERMINUS_1)
-                                                                .getString(Direction.DID),
-                                                        line.getJSONObject(TERMINUS_1)
-                                                                .getString(Direction.SNAME));
+            Direction terminus2 = new Direction(name,
+                                        line.getJSONObject(TERMINUS_2).getString(Direction.DID),
+                                        line.getJSONObject(TERMINUS_2).getString(Direction.SNAME),
+                                        line.getJSONObject(TERMINUS_1).getString(Direction.DID),
+                                        line.getJSONObject(TERMINUS_1).getString(Direction.SNAME));
 
             termini = new HashMap<>();
             termini.put(TERMINUS_1,terminus1);

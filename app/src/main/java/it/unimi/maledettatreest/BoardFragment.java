@@ -1,7 +1,6 @@
 package it.unimi.maledettatreest;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +36,6 @@ public class BoardFragment extends Fragment {
     private CommunicationController cc;
     private RecyclerView listView;
     private Context context;
-    private SharedPreferences prefs;
-    private String sid;
     private View view;
     private PostsAdapter adapter;
     private LinkedList<Post> posts;
@@ -52,14 +50,10 @@ public class BoardFragment extends Fragment {
         cc = CommunicationController.getInstance(context);
         um = UsersModel.getInstance(context);
         lm = LinesModel.getInstance(context);
-        prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
-
-        sid = um.getSessionUser().getSid();
 
         HandlerThread handlerThread = new HandlerThread("BoardHandlerThread");
         handlerThread.start();
         secondaryThreadLooper = handlerThread.getLooper();
-
         db = MaledettaTreEstDB.getDatabase(context);
 
         return inflater.inflate(R.layout.fragment_board, container, false);
@@ -72,8 +66,9 @@ public class BoardFragment extends Fragment {
         listView = view.findViewById(R.id.postsRecyclerView);
         listView.setLayoutManager(new LinearLayoutManager(context));
 
-        cc.getPosts(sid, lm.getSelectedDir().getDid(),
+        cc.getPosts(lm.getSelectedDir().getDid(),
                 this::handleGetPostsResponse, error->cc.handleVolleyError(error,context,TAG));
+
         setupView();
     }
 
@@ -111,7 +106,7 @@ public class BoardFragment extends Fragment {
                     adapter.notifyItemChanged(i);
                 }
 
-            for (String uid : missingUids.keySet()){
+            for (String uid : missingUids.keySet())
                 new Handler(secondaryThreadLooper).post(() ->
                         MaledettaTreEstDB.databaseWriteExecutor.execute(() -> {
                             String base64Pic = db.userPicturesDao().getPicture(uid);
@@ -129,16 +124,14 @@ public class BoardFragment extends Fragment {
                                     }
                                 });
                             } else{
-                                cc.getUserPicture(sid, uid,
-                                        this::handleGetUserPictureResponse,
-                                        error -> cc.handleVolleyError(error, context, TAG));
+                                cc.getUserPicture(uid, this::handleGetUserPictureResponse,
+                                                error -> cc.handleVolleyError(error, context, TAG));
                             }
-                        })
-                );
-            }
-
-
-        } catch (JSONException e) { e.printStackTrace(); }
+                        }));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        }
     }
 
     public void handleGetUserPictureResponse(JSONObject response) {
@@ -155,7 +148,10 @@ public class BoardFragment extends Fragment {
             um.addUser(new User(response));
 
             new Handler(secondaryThreadLooper).post(() -> db.storePicture(response));
-        } catch (JSONException e) { e.printStackTrace(); }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        }
     }
 
     private void setupView(){
@@ -164,19 +160,14 @@ public class BoardFragment extends Fragment {
 
         view.findViewById(R.id.revertB).setOnClickListener(v-> {
 
-            prefs.edit().putString(Direction.DID,lm.getSelectedDir().getReverseDid())
-                    .putString(Direction.SNAME,lm.getSelectedDir().getReverseSname())
-                    .putString(Direction.REVERSE_SNAME,lm.getSelectedDir().getSname())
-                    .putString(Direction.REVERSE_DID, lm.getSelectedDir().getDid()).apply();
-
             lm.setSelectedDir(new Direction(lm.getSelectedDir().getLname(),
                                             lm.getSelectedDir().getReverseDid(),
                                             lm.getSelectedDir().getReverseSname(),
                                             lm.getSelectedDir().getDid(),
                                             lm.getSelectedDir().getSname() ));
 
-            cc.getPosts(sid, lm.getSelectedDir().getDid(),
-                    this::handleGetPostsResponse, error -> cc.handleVolleyError(error, context, TAG));
+            cc.getPosts(lm.getSelectedDir().getDid(), this::handleGetPostsResponse,
+                        error -> cc.handleVolleyError(error, context, TAG));
         });
 
         view.findViewById(R.id.addPostB).setOnClickListener(v->

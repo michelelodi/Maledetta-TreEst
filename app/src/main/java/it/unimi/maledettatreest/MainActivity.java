@@ -27,15 +27,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.nav_graph);
 
-        if (getSharedPreferences(APP_PREFS,0).contains(Direction.DID))
-            navGraph.setStartDestination(R.id.boardFragment);
-        else
-            navGraph.setStartDestination(R.id.linesFragment);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.nav_graph);
 
-        navController.setGraph(navGraph);
+            if (getSharedPreferences(APP_PREFS,0).contains(Direction.DID))
+                navGraph.setStartDestination(R.id.boardFragment);
+            else
+                navGraph.setStartDestination(R.id.linesFragment);
+
+            navController.setGraph(navGraph);
+        }
 
         ((NavigationBarView)findViewById(R.id.bottom_navigation)).setOnItemSelectedListener(item -> {
             Class<? extends Fragment> currentFragmentClass = Objects.requireNonNull(navHostFragment)

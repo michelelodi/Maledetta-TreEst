@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.model.Post;
-import it.unimi.maledettatreest.model.UsersModel;
 import it.unimi.maledettatreest.services.ImageManager;
 
 public class PostViewHolder extends RecyclerView.ViewHolder{
@@ -24,7 +23,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
     private final LinearLayout singlePostLinearLayout;
     private final Button followB;
     private final CommunicationController cc;
-    private UsersModel um;
     private final Context context;
     private boolean followingAuthor;
 
@@ -32,7 +30,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
         super(itemView);
 
         this.context = context;
-        um = UsersModel.getInstance(context);
         cc = CommunicationController.getInstance(context);
 
         postAuthorTV = itemView.findViewById(R.id.postAuthorTV);
@@ -84,11 +81,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
 
             followB.setOnClickListener(view -> {
                 if(followingAuthor) {
-                    cc.unfollow(um.getSessionUser().getSid(), post.getAuthor(),
+                    cc.unfollow(post.getAuthor(),
                             this::handleUnfollowResponse, error -> cc.handleVolleyError(error, context, TAG));
                 }
                 else
-                    cc.follow(um.getSessionUser().getSid(), post.getAuthor(),
+                    cc.follow(post.getAuthor(),
                             this::handleFollowResponse, error -> cc.handleVolleyError(error, context, TAG));
             });
     }

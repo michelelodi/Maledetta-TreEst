@@ -13,7 +13,6 @@ import android.widget.EditText;
 import org.json.JSONObject;
 import it.unimi.maledettatreest.controller.CommunicationController;
 import it.unimi.maledettatreest.model.LinesModel;
-import it.unimi.maledettatreest.model.UsersModel;
 
 public class AddPostFragment extends Fragment {
 
@@ -21,13 +20,11 @@ public class AddPostFragment extends Fragment {
 
     private CommunicationController cc;
     private LinesModel lm;
-    private UsersModel um;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         cc = CommunicationController.getInstance(requireContext());
-        um = UsersModel.getInstance(requireContext());
         lm = LinesModel.getInstance(requireContext());
         return inflater.inflate(R.layout.fragment_add_post, container, false);
     }
@@ -76,7 +73,7 @@ public class AddPostFragment extends Fragment {
             }
 
             if(check)
-                cc.addPost(um.getSessionUser().getSid(), lm.getSelectedDir().getDid(),
+                cc.addPost(lm.getSelectedDir().getDid(),
                         delay, status, comment, this::handleAddPostResponse,
                         error -> cc.handleVolleyError(error,requireContext(),TAG));
         });
@@ -84,6 +81,6 @@ public class AddPostFragment extends Fragment {
 
     private void handleAddPostResponse(JSONObject response) {
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                .navigate(AddPostFragmentDirections.actionAddPostFragmentToLinesFragment());
+                .navigate(AddPostFragmentDirections.actionAddPostFragmentToBoardFragment());
     }
 }

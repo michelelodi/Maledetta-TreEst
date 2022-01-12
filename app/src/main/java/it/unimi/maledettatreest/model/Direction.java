@@ -7,7 +7,6 @@ public class Direction {
     public static final String REVERSE_SNAME = "reverseSname";
     public static final String SNAME = "sname";
 
-
     private final String lname, did, sname, reverseDid, reverseSname;
 
     public Direction(String lname, String did, String sname, String reverseDid, String reverseSname) {

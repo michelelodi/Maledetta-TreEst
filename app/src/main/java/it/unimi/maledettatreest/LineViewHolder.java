@@ -2,14 +2,11 @@ package it.unimi.maledettatreest;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import it.unimi.maledettatreest.controller.EditLineDirectionClickListener;
 import it.unimi.maledettatreest.model.Line;
 

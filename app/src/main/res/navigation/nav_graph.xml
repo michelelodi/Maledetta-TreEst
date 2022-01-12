@@ -62,6 +62,9 @@
             android:id="@+id/action_addPostFragment_to_userFragment"
             app:destination="@id/userFragment" />
         <action
+            android:id="@+id/action_addPostFragment_to_boardFragment"
+            app:destination="@id/boardFragment" />
+        <action
             android:id="@+id/action_addPostFragment_to_linesFragment"
             app:destination="@id/linesFragment" />
     </fragment>

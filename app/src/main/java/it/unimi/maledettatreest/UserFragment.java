@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,8 +60,8 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
         this.view = view;
 
         if(!prefs.contains(User.NAME))
-            cc.getProfile(um.getSessionUser().getSid(), this::handleGetProfileResponse,
-                            error -> cc.handleVolleyError(error, context, TAG));
+            cc.getProfile(this::handleGetProfileResponse,
+                    error -> cc.handleVolleyError(error, context, TAG));
         else {
             SessionUser sessionUser = um.getSessionUser();
             sessionUser.setUid(um.getSessionUser().getUid());
@@ -87,7 +88,10 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
             sessionUser.setName(response.get(User.NAME).toString());
 
             um.setSessionUser(sessionUser);
-        } catch (JSONException e) { e.printStackTrace(); }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.toString());
+        }
 
         setupView();
     }
@@ -115,10 +119,13 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
                 sessionUser.setPicture(picture);
                 um.setSessionUser(sessionUser);
 
-                cc.setProfile(um.getSessionUser().getSid(), null, picture,
-                        this::handleSetProfileResponse, e->cc.handleVolleyError(e,context,TAG));
+                cc.setProfile(null, picture, this::handleSetProfileResponse,
+                        error ->cc.handleVolleyError(error, context, TAG));
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.toString());
+        }
     }
 
     private void hideKeyboard() {
@@ -161,8 +168,8 @@ public class UserFragment extends Fragment implements ActivityResultCallback<Uri
                 sessionUser.setName(name);
                 um.setSessionUser(sessionUser);
                 hideKeyboard();
-                cc.setProfile(um.getSessionUser().getSid(), name, null,
-                        this::handleSetProfileResponse, e-> cc.handleVolleyError(e, context, TAG));
+                cc.setProfile(name, null, this::handleSetProfileResponse,
+                                error -> cc.handleVolleyError(error, context, TAG));
             } });
 
         editPicture.setOnClickListener(v -> {

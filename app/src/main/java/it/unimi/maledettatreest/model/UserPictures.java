@@ -10,13 +10,13 @@ public class UserPictures {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "uid")
-    private String uid;
+    private final String uid;
 
     @ColumnInfo(name = "picture")
-    private String picture;
+    private final String picture;
 
     @ColumnInfo(name = "pversion")
-    private String pversion;
+    private final String pversion;
 
     public UserPictures(@NonNull String uid, String picture, String pversion) {
         this.uid = uid;

@@ -5,9 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import it.unimi.maledettatreest.PostViewHolder;
 import it.unimi.maledettatreest.R;

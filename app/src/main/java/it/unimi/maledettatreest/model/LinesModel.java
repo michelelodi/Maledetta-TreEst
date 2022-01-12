@@ -2,9 +2,7 @@ package it.unimi.maledettatreest.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import java.util.ArrayList;
-
 import it.unimi.maledettatreest.MainActivity;
 
 public class LinesModel {
@@ -12,20 +10,19 @@ public class LinesModel {
     private static LinesModel instance;
 
     private final ArrayList<Line> lines;
-    private Direction selectedDir;
+    private Direction selectedDir = null;
+    private final SharedPreferences prefs;
 
     private LinesModel(Context context){
         lines = new ArrayList<>();
 
-        SharedPreferences prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
+        prefs = context.getSharedPreferences(MainActivity.APP_PREFS,0);
         if(prefs.contains(Direction.DID))
             selectedDir = new Direction(prefs.getString(Line.LNAME,MainActivity.DOESNT_EXIST),
                                         prefs.getString(Direction.DID,MainActivity.DOESNT_EXIST),
                                         prefs.getString(Direction.SNAME,MainActivity.DOESNT_EXIST),
                                         prefs.getString(Direction.REVERSE_DID,MainActivity.DOESNT_EXIST),
                                         prefs.getString(Direction.REVERSE_SNAME,MainActivity.DOESNT_EXIST));
-        else
-            selectedDir = null;
     }
 
     public static synchronized LinesModel getInstance(Context context){
@@ -51,5 +48,10 @@ public class LinesModel {
 
     public void setSelectedDir(Direction selectedDir){
         this.selectedDir = selectedDir;
+        prefs.edit().putString(Line.LNAME, selectedDir.getLname())
+                .putString(Direction.DID, selectedDir.getDid())
+                .putString(Direction.SNAME, selectedDir.getSname())
+                .putString(Direction.REVERSE_SNAME, selectedDir.getReverseSname())
+                .putString(Direction.REVERSE_DID, selectedDir.getReverseDid()).apply();
     }
 }
