@@ -1,13 +1,11 @@
 package it.unimi.maledettatreest.model;
 
 import android.util.Log;
-
+import android.util.SparseArray;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import it.unimi.maledettatreest.MainActivity;
 
 public class Line {
@@ -20,7 +18,7 @@ public class Line {
 
     private ArrayList<Station> stations;
     private String name;
-    private HashMap<String,Direction> termini;
+    private SparseArray<Direction> termini;
 
     public Line(JSONObject line){
         stations = null;
@@ -41,9 +39,9 @@ public class Line {
                                         line.getJSONObject(TERMINUS_1).getString(Direction.DID),
                                         line.getJSONObject(TERMINUS_1).getString(Station.SNAME));
 
-            termini = new HashMap<>();
-            termini.put(TERMINUS_1,terminus1);
-            termini.put(TERMINUS_2,terminus2);
+            termini = new SparseArray<>(2);
+            termini.append(1,terminus1);
+            termini.append(2,terminus2);
         } catch (JSONException e) { e.printStackTrace(); }
     }
 
@@ -56,9 +54,7 @@ public class Line {
     }
 
     public Direction getTerminus(int terminus) {
-        if(terminus == 1) return termini.get(TERMINUS_1);
-        if(terminus == 2) return termini.get(TERMINUS_2);
-        return null;
+        return (Direction) termini.get(terminus);
     }
 
     public void setStations(JSONArray stations){
