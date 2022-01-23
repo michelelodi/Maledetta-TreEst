@@ -1,11 +1,10 @@
 package it.unimi.maledettatreest;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,11 +17,11 @@ import it.unimi.maledettatreest.services.ImageManager;
 public class PostViewHolder extends RecyclerView.ViewHolder{
 
     private static final String TAG = MainActivity.TAG_BASE + "PostViewHolder";
+    private static final String UNNAMED = "unnamed";
+    private static final String GUEST = MainActivity.TAG_BASE + "@guest";
 
-    private final TextView postAuthorTV, postAuthorNameTV, postDatetimeTV, postPversionTV,
-            postFollowingAuthorTV, postCommentTV, postStatusTV, postDelayTV;
-    private final ImageView userPictureIV;
-    private final LinearLayout singlePostLinearLayout;
+    private final TextView postAuthorNameTV, postDateTV, postTimeTV, postCommentTV, statusTV, delayTV;
+    private final ImageView userPictureIV, delayIV, statusIV;
     private final Button followB;
     private final CommunicationController cc;
     private final Context context;
@@ -36,48 +35,83 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
         cc = CommunicationController.getInstance(context);
         um = UsersModel.getInstance(context);
 
-        postAuthorTV = itemView.findViewById(R.id.postAuthorTV);
         postAuthorNameTV = itemView.findViewById(R.id.postAuthorNameTV);
-        postDatetimeTV = itemView.findViewById(R.id.postDatetimeTV);
-        postPversionTV = itemView.findViewById(R.id.postPversionTV);
-        postFollowingAuthorTV = itemView.findViewById(R.id.postFollowingAuthorTV);
+        postDateTV = itemView.findViewById(R.id.dateTV);
+        postTimeTV = itemView.findViewById(R.id.timeTV);
         postCommentTV = itemView.findViewById(R.id.postCommentTV);
-        postStatusTV = itemView.findViewById(R.id.postStatusTV);
-        postDelayTV = itemView.findViewById(R.id.postDelayTV);
+        statusTV = itemView.findViewById(R.id.statusTV);
+        statusIV = itemView.findViewById(R.id.statusIV);
         userPictureIV = itemView.findViewById(R.id.userPictureIV);
         followB = itemView.findViewById(R.id.followB);
-
-        singlePostLinearLayout = itemView.findViewById(R.id.singlePostLinearLayout);
-
+        delayIV = itemView.findViewById(R.id.delayIV);
+        delayTV = itemView.findViewById(R.id.delayTV);
     }
 
     public void updateContent(Post post){
-            String author = post.getAuthor();
-            String pversion = post.getPversion();
             followingAuthor = Boolean.parseBoolean(post.getFollowingAuthor());
 
-            postAuthorTV.setText(author);
-            postAuthorNameTV.setText(post.getAuthorName());
-            postDatetimeTV.setText(post.getDatetime());
-            postPversionTV.setText(pversion);
-            postFollowingAuthorTV.setText(post.getFollowingAuthor());
+            if(!post.getAuthorName().equals(UNNAMED)) {
+                String name = "@" + post.getAuthorName();
+                postAuthorNameTV.setText(name);
+            }
+            else
+                postAuthorNameTV.setText(GUEST);
+            if(followingAuthor) postAuthorNameTV.setTextColor(context.getColor(R.color.primary_blue));
+            else postAuthorNameTV.setTextColor(context.getColor(R.color.yellow));
+            postDateTV.setText(post.getDatetime().substring(0,11));
+            postTimeTV.setText(post.getDatetime().substring(12,17));
 
-            if(post.getComment() != null)postCommentTV.setText(post.getComment());
-            else singlePostLinearLayout.removeView(postCommentTV);
+            postCommentTV.setText(post.getComment());
 
-            if(post.getStatus() != null &&
-                Integer.parseInt(post.getStatus()) >= 0 &&
-                Integer.parseInt(post.getStatus()) < 3)
-                    postStatusTV.setText(post.getStatus());
-            else singlePostLinearLayout.removeView(postStatusTV);
+            if(post.getStatus() != null && Integer.parseInt(post.getStatus()) >= 0 &&
+                    Integer.parseInt(post.getStatus()) < 3){
+
+                switch (Integer.parseInt(post.getStatus())) {
+                    case 0 -> {
+                        statusTV.setText(AddPostFragment.IDEAL);
+                        statusIV.setImageResource(R.drawable.ideal);
+                    }
+                    case 1 -> {
+                        statusTV.setText(AddPostFragment.ACCEPTABLE);
+                        statusIV.setImageResource(R.drawable.meh);
+                    }
+                    case 2 -> {
+                        statusTV.setText(AddPostFragment.UNACCEPTABLE);
+                        statusIV.setImageResource(R.drawable.frown);
+                    }
+                }
+            }
 
             if(post.getDelay() != null &&
                 Integer.parseInt(post.getDelay()) >= 0 &&
-                Integer.parseInt(post.getDelay()) < 4)
-                    postDelayTV.setText(post.getDelay());
-            else singlePostLinearLayout.removeView(postDelayTV);
+                Integer.parseInt(post.getDelay()) < 4) {
+                switch (Integer.parseInt(post.getDelay())) {
+                    case 0 -> {
+                        delayTV.setText(AddPostFragment.NO_DELAY);
+                        delayIV.setImageResource(R.drawable.no_delay);
+                    }
+                    case 1 -> {
+                        delayTV.setText(AddPostFragment.SHORT_DELAY);
+                        delayIV.setImageResource(R.drawable.short_delay);
+                    }
+                    case 2 -> {
+                        delayTV.setText(AddPostFragment.LONG_DELAY);
+                        delayIV.setImageResource(R.drawable.long_delay);
+                    }
+                    case 3 -> {
+                        delayTV.setText(AddPostFragment.CANCELLED);
+                        delayIV.setImageResource(R.drawable.cancelled);
+                    }
+                }
+            }
 
-            if(post.getPicture() != null) userPictureIV.setImageBitmap(ImageManager.base64ToBitmap(post.getPicture()));
+            if(post.getPicture() != null) {
+                Bitmap bitmap = ImageManager.base64ToBitmap(post.getPicture());
+                if(bitmap != null)
+                    userPictureIV.setImageBitmap(ImageManager.getRoundedCornerBitmap(bitmap, 8));
+                else userPictureIV.setImageResource(R.drawable.blank_profile_picture);
+            }
+
             else userPictureIV.setImageResource(R.drawable.blank_profile_picture);
 
             if(!post.getAuthor().equals(um.getSessionUser().getUid())) {
@@ -102,10 +136,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
 
     private void handleFollowResponse(JSONObject jsonObject) {
         followB.setText(R.string.unfollow);
+        postAuthorNameTV.setTextColor(context.getColor(R.color.primary_blue));
         followingAuthor = !followingAuthor;
     }
 
     private void handleUnfollowResponse(JSONObject jsonObject) {
+        postAuthorNameTV.setTextColor(context.getColor(R.color.yellow));
         followB.setText(R.string.follow);
         followingAuthor = !followingAuthor;
     }

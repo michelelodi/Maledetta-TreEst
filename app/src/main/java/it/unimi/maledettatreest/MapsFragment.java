@@ -56,7 +56,7 @@ public class MapsFragment extends Fragment{
     private ArrayList<Station> stations;
     private final ArrayList<LatLng> polyPoints = new ArrayList<>();
     private final ArrayList<Circle> mapCircles = new ArrayList<>();
-    private Marker activeMarker = null;
+    private final ArrayList<Marker> mapMarkers = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Nullable
@@ -176,28 +176,6 @@ public class MapsFragment extends Fragment{
 
     private void setUpMap(){
 
-        map.setOnCircleClickListener(circle -> {
-            if(activeMarker != null){
-                activeMarker.remove();
-                activeMarker = null;
-            }
-
-            for(int i = 0; i < mapCircles.size(); i++)
-                if(mapCircles.get(i).equals(circle))
-                    activeMarker = map.addMarker(new MarkerOptions()
-                                                    .position(mapCircles.get(i).getCenter())
-                                                    .title(stations.get(i).getSname()));
-            if (activeMarker != null) activeMarker.showInfoWindow();
-
-        });
-
-        map.setOnMapClickListener(latLng -> {
-            if(activeMarker != null && !latLng.equals(activeMarker.getPosition())){
-                activeMarker.remove();
-                activeMarker = null;
-            }
-        });
-
         for(Station s : stations)
             polyPoints.add(new LatLng(Float.parseFloat(s.getLat()), Float.parseFloat(s.getLon())));
 
@@ -223,10 +201,9 @@ public class MapsFragment extends Fragment{
             mapPolyline.get().remove();
             for(Circle c : mapCircles) c.remove();
             mapCircles.clear();
-            if(activeMarker != null){
-                activeMarker.remove();
-                activeMarker = null;
-            }
+            for(Marker m : mapMarkers) m.remove();
+            mapMarkers.clear();
+
             if(map.isMyLocationEnabled())toggleMyLocationEnabled();
         });
 
@@ -252,16 +229,24 @@ public class MapsFragment extends Fragment{
     }
 
     private Polyline drawPolyline(ArrayList<LatLng> polyLinePoints){
-        for(LatLng point : polyLinePoints)
-            mapCircles.add(map.addCircle(new CircleOptions().center(point)
-                    .radius(Math.abs(21 - map.getCameraPosition().zoom)/2)
+        for(int i = 0; i < polyLinePoints.size(); i++) {
+            mapCircles.add(map.addCircle(new CircleOptions().center(polyLinePoints.get(i))
+                    .radius(Math.abs(21 - map.getCameraPosition().zoom) / 2)
                     .strokeColor(Color.rgb(0, 127, 255))
                     .fillColor(Color.rgb(0, 127, 255))
-                    .zIndex(1).clickable(true)));
-
+                    .zIndex(1)));
+            Marker m = map.addMarker(new MarkerOptions()
+                    .position(mapCircles.get(i).getCenter())
+                    .title(stations.get(i).getSname()).zIndex(2));
+            mapMarkers.add(m);
+        }
+        map.setOnMarkerClickListener(marker -> {
+            marker.showInfoWindow();
+            return true;
+        });
         return map.addPolyline(new PolylineOptions()
                 .addAll(polyLinePoints)
-                .color(Color.rgb(0,127,255))
+                .color(Color.rgb(4,196,217))
                 .width(5));
     }
 

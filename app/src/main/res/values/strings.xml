@@ -4,13 +4,14 @@
     <!-- ProfileFragment -->
     <string name="profile_name_placeholder">Name</string>
     <string name="profile_pic_description">Profile Picture</string>
-    <string name="edit_picture_button">Edit Picture</string>
-    <string name="edit_name_button">Edit Name</string>
+    <string name="edit_picture_button">Edit</string>
+    <string name="edit_name_button">Save</string>
 
     <!-- BoardFragment -->
     <string name="revert_button">REVERT</string>
-    <string name="add_post_button">ADD POST</string>
-    <string name="details_button">DETAILS</string>
+    <string name="add_post_button">REPORT</string>
+    <string name="details_button">SHOW MAP</string>
+    <string name="board_title">How is the line \nright now?</string>
 
     <!-- BottomNav -->
     <string name="userBottomNavText">User</string>
@@ -21,8 +22,21 @@
     <string name="unfollow">UNFOLLOW</string>
 
     <!-- AddPostFragment -->
-    <string name="delay">delay</string>
-    <string name="status">status</string>
-    <string name="comment">comment</string>
+    <string name="delay">How much delay does your train\nhave?</string>
+    <string name="status">Status:</string>
+    <string name="comment">Comment:</string>
     <string name="post">submit post</string>
+    <string name="rate_line">Rate the line:</string>
+    <string name="no_delay">on time</string>
+    <string name="short_delay">less than 15 minutes</string>
+    <string name="long_delay">more than 15 minutes</string>
+    <string name="cancelled">cancelled</string>
+    <string name="ideal">Ideal</string>
+    <string name="acceptable">Acceptable</string>
+    <string name="unacceptable">Serious problems</string>
+
+    <!-- LinesFragment -->
+    <string name="departure">Departure</string>
+    <string name="arrival">Arrival</string>
+    <string name="lines_title">Where are you \ngoing right now?</string>
 </resources>

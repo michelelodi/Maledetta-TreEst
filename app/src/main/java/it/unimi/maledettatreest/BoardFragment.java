@@ -73,14 +73,20 @@ public class BoardFragment extends Fragment {
     }
 
     private void handleGetPostsResponse(JSONObject response){
+
         HashMap<String, String> missingUids = new HashMap<>();
         HashMap<String, String> foundUids = new HashMap<>();
 
         try {
-            ((TextView)view.findViewById(R.id.snameBoardFragmentTV))
-                    .setText(lm.getSelectedDir().getSname());
-            ((TextView)view.findViewById(R.id.didBoardFragmentTV))
-                    .setText(lm.getSelectedDir().getDid());
+            String departure = lm.getSelectedDir().getSname().substring(0,lm.getSelectedDir().getSname().indexOf(" ")) +
+                    "\n" + lm.getSelectedDir().getSname().substring(lm.getSelectedDir().getSname().indexOf(" ")+1);
+            String arrival = lm.getSelectedDir().getReverseSname().substring(0,lm.getSelectedDir().getReverseSname().indexOf(" ")) +
+                    "\n" + lm.getSelectedDir().getReverseSname().substring(lm.getSelectedDir().getReverseSname().indexOf(" ")+1);
+
+            ((TextView)view.findViewById(R.id.terminus1ArrivalBoard))
+                    .setText(departure);
+            ((TextView)view.findViewById(R.id.terminus1DepartureBoard))
+                    .setText(arrival);
 
             posts = Post.getPostsFromJSONArray(response.getJSONArray("posts"));
             adapter =  new PostsAdapter(context,posts);
@@ -155,8 +161,6 @@ public class BoardFragment extends Fragment {
     }
 
     private void setupView(){
-        ((TextView)view.findViewById(R.id.lnameBoardFragmentTV))
-                .setText(lm.getSelectedDir().getLname());
 
         view.findViewById(R.id.revertB).setOnClickListener(v-> {
 

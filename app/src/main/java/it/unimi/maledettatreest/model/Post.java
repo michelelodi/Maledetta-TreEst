@@ -1,11 +1,17 @@
 package it.unimi.maledettatreest.model;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.LinkedList;
 
+import it.unimi.maledettatreest.MainActivity;
+
 public class Post {
+
+    private static final String TAG = MainActivity.TAG_BASE + "Post";
 
     public static final String AUTHOR = "author";
     public static final String AUTHOR_NAME = "authorName";
@@ -30,7 +36,10 @@ public class Post {
             followingAuthor = post.getString(FOLLOWING_AUTHOR);
             status = post.has(STATUS) ? post.getString(STATUS) : null;
             pversion = post.getString(User.PVERSION);
-        } catch (JSONException e) { e.printStackTrace(); }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG,e.toString());
+        }
     }
 
     public String getAuthor() { return author; }
@@ -56,17 +65,12 @@ public class Post {
     }
 
     public static LinkedList<Post> getPostsFromJSONArray(JSONArray jsonArray){
-        LinkedList<Post> followedPosts = new LinkedList<>();
-        LinkedList<Post> unfollowedPosts = new LinkedList<>();
+        LinkedList<Post> posts = new LinkedList<>();
         for(int i = 0; i < jsonArray.length(); i++){
             try {
-                if(Boolean.parseBoolean(((JSONObject) jsonArray.get(i)).getString(FOLLOWING_AUTHOR)))
-                    followedPosts.add(new Post((JSONObject) jsonArray.get(i)));
-                else
-                    unfollowedPosts.add(new Post((JSONObject) jsonArray.get(i)));
+                    posts.add(new Post((JSONObject) jsonArray.get(i)));
             } catch (JSONException e) { e.printStackTrace(); }
         }
-        followedPosts.addAll(unfollowedPosts);
-        return followedPosts;
+        return posts;
     }
 }
